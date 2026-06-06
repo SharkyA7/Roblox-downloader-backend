@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+faiz-ref/
+*.zip
+.DS_Store
