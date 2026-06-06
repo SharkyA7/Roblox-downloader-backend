@@ -1,3 +1,5 @@
+# IMPORTANT ANNOUNCEMENT
+Masih dalam tahap pengembangan (BETA)
 # Roblox 3D Downloader
 
 Backend FastAPI + Frontend HTML untuk download karakter avatar dan item katalog Roblox dalam format OBJ/GLTF.
