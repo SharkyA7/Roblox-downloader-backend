@@ -1,0 +1,5 @@
+[build]
+rootDirectory = "backend"
+
+[deploy]
+startCommand = "python3 main.py"

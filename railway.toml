@@ -1,0 +1,4 @@
+[deploy]
+startCommand = "cd backend && python3 main.py"
+healthcheckPath = "/health"
+healthcheckTimeout = 30

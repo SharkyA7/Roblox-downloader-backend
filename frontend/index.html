@@ -318,7 +318,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
 <footer>ROBLOX 3D DOWNLOADER · UNOFFICIAL · NOT AFFILIATED WITH ROBLOX CORPORATION</footer>
 
 <script>
-const BASE = '';  // Kosong = same origin. Ganti ke 'http://localhost:8000' jika frontend dijalankan terpisah.
+const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
@@ -485,7 +485,7 @@ async function downloadCatalog(format){
   if(!currentAssetId) return;
   st('cat-status',`Mengunduh ${format.toUpperCase()} ZIP…`,'loading');
   try{
-    const res=await fetch(`${BASE}/api/v2/item?id=${currentAssetId}&format=${encodeURIComponent(format)}`);
+    const res=await fetch(`${BASE}/api/catalog/download-full?asset_id=${currentAssetId}&format=${format}`);
     if(!res.ok){ const e=await res.json(); throw new Error(e.detail||res.statusText); }
     const blob=await res.blob();
     const name=document.getElementById('cat-name').textContent||currentAssetId;
@@ -531,7 +531,7 @@ async function downloadReal(){
   try{
     // Pakai server endpoint - server pakai cloudscraper + cookie
     st.textContent = '⏳ Download mesh + texture dari Roblox... (30-60 detik)';
-    const res = await fetch(`/api/v2/avatar?user=${encodeURIComponent(user)}`);
+    const res = await fetch(`${BASE}/api/v2/avatar?user=${encodeURIComponent(user)}`);
     if(!res.ok){
       const e = await res.json();
       throw new Error(e.error || res.statusText);
@@ -644,7 +644,7 @@ async function downloadProcedural(){
   const user=document.getElementById('av-input').value.trim();
   if(!user)return;
   try{
-    const res=await fetch('/api/avatar/procedural-download?user='+encodeURIComponent(user));
+    const res=await fetch('${BASE}/api/avatar/procedural-download?user='+encodeURIComponent(user));
     const blob=await res.blob();
     const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:user+'_procedural.zip'});
     a.click();

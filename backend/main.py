@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, Response
-import httpx, os, io, zipfile, time, json
+import httpx, os, io, zipfile, time, json, re
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -653,3 +653,6 @@ if __name__ == "__main__":
     port=int(os.getenv("PORT",8000))
     print(f"Server jalan di http://0.0.0.0:{port}")
     app.run(host="0.0.0.0",port=port,debug=False)
+
+# Railway / production WSGI entry point
+application = app
