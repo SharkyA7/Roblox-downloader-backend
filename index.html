@@ -440,7 +440,7 @@ async function downloadReal(){
   try{
     // Pakai server endpoint - server pakai cloudscraper + cookie
     st.textContent = '⏳ Download mesh + texture dari Roblox... (30-60 detik)';
-    const res = await fetch(`/api/v2/avatar?user=${encodeURIComponent(user)}`);
+    const res = await fetch(`${BASE}/api/v2/avatar?user=${encodeURIComponent(user)}`);
     if(!res.ok){
       const e = await res.json();
       throw new Error(e.error || res.statusText);
