@@ -681,3 +681,69 @@ if __name__ == "__main__":
 
 # Railway / production WSGI entry point
 application = app
+
+@app.get("/api/audio/info")
+def audio_info():
+    aid = request.args.get("id","")
+    if not aid: return jsonify({"error":"id required"}),400
+    try:
+        d = rget(f"https://economy.roblox.com/v2/assets/{aid}/details")
+        if d.get("AssetTypeId") != 3:
+            return jsonify({"error":"Bukan audio asset"}),400
+        creator = d.get("Creator",{})
+        return jsonify({
+            "assetId": int(aid),
+            "name": d.get("Name",""),
+            "creator": creator.get("Name",""),
+            "creatorId": creator.get("CreatorTargetId"),
+            "creatorType": creator.get("CreatorType",""),
+            "created": d.get("Created",""),
+            "robloxUrl": f"https://www.roblox.com/library/{aid}"
+        })
+    except Exception as e: return jsonify({"error":str(e)}),500
+
+@app.get("/api/audio/download")
+def audio_download():
+    aid = request.args.get("id","")
+    if not aid: return jsonify({"error":"id required"}),400
+    try:
+        d = rget(f"https://economy.roblox.com/v2/assets/{aid}/details")
+        if d.get("AssetTypeId") != 3:
+            return jsonify({"error":"Bukan audio asset"}),400
+        creator = d.get("Creator",{})
+        name = d.get("Name", str(aid))
+        safe = "".join(c if c.isalnum() or c in " _-" else "_" for c in name).strip()
+
+        # Download audio
+        import gzip
+        s = get_scraper()
+        r = s.get(f"https://assetdelivery.roblox.com/v1/asset/?id={aid}", timeout=30)
+        raw = r.content
+        try:
+            raw = gzip.decompress(raw)
+        except: pass
+
+        # Build ZIP
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf,"w",zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(f"{safe}.ogg", raw)
+            zf.writestr("INFO.txt",
+                f"Audio: {name}\n"
+                f"Asset ID: {aid}\n"
+                f"Creator: {creator.get('Name','')}\n"
+                f"Creator ID: {creator.get('CreatorTargetId','')}\n"
+                f"Creator Type: {creator.get('CreatorType','')}\n"
+                f"Roblox URL: https://www.roblox.com/library/{aid}\n"
+            )
+            zf.writestr("WARNING.txt",
+                "⚠ COPYRIGHT WARNING\n"
+                "====================\n"
+                "This audio file may be protected by copyright.\n"
+                "Only use audio you own or have permission to use.\n"
+                "Do not redistribute without the creator's permission.\n"
+                "The developer of this tool is not responsible for misuse.\n"
+            )
+        buf.seek(0)
+        return Response(buf.read(), mimetype="application/zip",
+            headers={"Content-Disposition": f'attachment; filename="{safe}_audio.zip"'})
+    except Exception as e: return jsonify({"error":str(e)}),500
