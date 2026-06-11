@@ -241,6 +241,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
   <div class="tabs">
     <div class="tab active" onclick="switchTab('avatar')">👤 AVATAR</div>
     <div class="tab" onclick="switchTab('catalog')">🛍️ KATALOG</div>
+    <div class="tab" onclick="switchTab('audio')">🎵 AUDIO</div>
     <div class="tab" onclick="switchTab('api')">📡 API DOCS</div>
   </div>
 
@@ -368,6 +369,33 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     </div>
   </div>
 
+  <!-- ── AUDIO PANEL ── -->
+  <div class="panel" id="panel-audio">
+    <div class="card">
+      <div class="label">CARI AUDIO</div>
+      <input class="inp" id="audio-input" type="number" placeholder="Audio ID (contoh: 139084379039051)">
+      <p style="font-size:9px;color:var(--gray);margin-top:4px">Ambil ID dari URL: roblox.com/library/ID/nama-audio</p>
+      <button class="btn" id="audio-btn" onclick="fetchAudio()">▶ FETCH</button>
+      <div id="audio-status" style="margin-top:8px;font-size:9px"></div>
+    </div>
+    <div class="card" id="audio-result" style="display:none">
+      <div class="label">DETAIL AUDIO</div>
+      <div id="audio-name" style="font-size:11px;color:var(--red);margin-bottom:8px"></div>
+      <div style="font-size:9px;color:var(--gray);line-height:2">
+        <div>CREATOR: <span id="audio-creator" style="color:var(--white)"></span></div>
+        <div>ASSET ID: <span id="audio-id" style="color:var(--green)"></span></div>
+        <div>DIBUAT: <span id="audio-created" style="color:var(--white)"></span></div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(232,0,11,.08);border:1px solid rgba(232,0,11,.3);border-radius:4px;font-size:9px;color:#ffaaaa">
+        ⚠ Audio ini mungkin dilindungi hak cipta. Hanya download audio milik kamu atau yang kamu punya izin.<br><br>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--white)">
+          <input type="checkbox" id="audio-agree" onchange="toggleAudioDownload()"> Saya mengerti dan bertanggung jawab atas penggunaan audio ini
+        </label>
+      </div>
+      <button class="btn" id="audio-dl-btn" onclick="downloadAudio()" disabled style="margin-top:10px;opacity:0.5">⬇ DOWNLOAD AUDIO + INFO</button>
+    </div>
+  </div>
+
   <!-- ── API PANEL ── -->
   <div class="panel" id="panel-api">
     <div class="card">
@@ -401,7 +429,7 @@ const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','api'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','audio','api'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
 }
@@ -785,6 +813,62 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 document.getElementById('av-input').addEventListener('keydown',e=>{ if(e.key==='Enter') fetchAvatar(); });
 document.getElementById('cat-input').addEventListener('keydown',e=>{ if(e.key==='Enter') fetchCatalog(); });
+
+let currentAudioId = null;
+
+async function fetchAudio(){
+  const id = document.getElementById("audio-input").value.trim();
+  if(!id){document.getElementById("audio-status").textContent="Masukkan Audio ID.";return;}
+  const btn = document.getElementById("audio-btn");
+  btn.disabled = true;
+  document.getElementById("audio-status").textContent="Mengambil info audio...";
+  try{
+    const res = await fetch(`${BASE}/api/audio/info?id=${id}`);
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error||res.statusText);
+    currentAudioId = data.assetId;
+    document.getElementById("audio-name").textContent = data.name;
+    document.getElementById("audio-creator").textContent = data.creator;
+    document.getElementById("audio-id").textContent = data.assetId;
+    document.getElementById("audio-created").textContent = data.created?.slice(0,10)||"";
+    document.getElementById("audio-result").style.display="block";
+    document.getElementById("audio-agree").checked = false;
+    document.getElementById("audio-dl-btn").disabled = true;
+    document.getElementById("audio-dl-btn").style.opacity = "0.5";
+    document.getElementById("audio-status").textContent="";
+  }catch(e){
+    document.getElementById("audio-status").textContent="✗ "+e.message;
+  }finally{ btn.disabled=false; }
+}
+
+function toggleAudioDownload(){
+  const checked = document.getElementById("audio-agree").checked;
+  const btn = document.getElementById("audio-dl-btn");
+  btn.disabled = !checked;
+  btn.style.opacity = checked ? "1" : "0.5";
+}
+
+async function downloadAudio(){
+  if(!currentAudioId) return;
+  const btn = document.getElementById("audio-dl-btn");
+  btn.disabled = true;
+  document.getElementById("audio-status").textContent="Mengunduh audio...";
+  try{
+    const res = await fetch(`${BASE}/api/audio/download?id=${currentAudioId}`);
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error||res.statusText); }
+    const blob = await res.blob();
+    const a = Object.assign(document.createElement("a"),{
+      href: URL.createObjectURL(blob),
+      download: `audio_${currentAudioId}.zip`
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+    document.getElementById("audio-status").textContent="✓ Download selesai!";
+  }catch(e){
+    document.getElementById("audio-status").textContent="✗ "+e.message;
+  }finally{ btn.disabled=false; }
+}
+
+document.getElementById("audio-input").addEventListener("keydown",e=>{ if(e.key==="Enter") fetchAudio(); });
 </script>
 </body>
 </html>
