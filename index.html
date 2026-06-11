@@ -244,7 +244,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     <div class="tab" onclick="switchTab('catalog')">🛍️ KATALOG</div>
     <div class="tab" onclick="switchTab('audio')">🎵 AUDIO</div>
     <div class="tab-dropdown">
-      <button class="tab" onclick="toggleDropdown()">⚙️ MORE ▼</button>
+      <button class="tab" onclick="toggleDropdown(event)">⚙️ MORE ▼</button>
       <div class="dropdown-menu" id="dropdown-menu" style="display:none">
         <div class="dropdown-item" onclick="switchTab('texture');toggleDropdown()">🎨 TEXTURE</div>
         <div class="dropdown-item" onclick="switchTab('api');toggleDropdown()">📡 API DOCS</div>
@@ -457,7 +457,8 @@ const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
-function toggleDropdown(){
+function toggleDropdown(e){
+  if(e) e.stopPropagation();
   const m=document.getElementById("dropdown-menu");
   m.style.display=m.style.display==="none"?"block":"none";
 }
