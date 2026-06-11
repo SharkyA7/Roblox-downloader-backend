@@ -420,7 +420,12 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">NORMAL</p><canvas id="canvas-normal" style="width:100%;border-radius:4px"></canvas></div>
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">ROUGHNESS</p><canvas id="canvas-roughness" style="width:100%;border-radius:4px"></canvas></div>
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">AO</p><canvas id="canvas-ao" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">EMISSIVE</p><canvas id="canvas-emissive" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">CURVATURE</p><canvas id="canvas-curvature" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">SPECULAR</p><canvas id="canvas-specular" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">BUMP</p><canvas id="canvas-bump" style="width:100%;border-radius:4px"></canvas></div>
       </div>
+      <div style="margin-bottom:10px;padding:10px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:4px;font-size:8px;color:#ffaa00;line-height:1.8">⚠ NOTED: Baking technique using Ibis Paint only works in Prisma 3D.</div>
       <button class="btn btn-green" onclick="downloadTextures()">⬇ DOWNLOAD ALL MAPS (ZIP)</button>
     </div>
   </div>
@@ -985,6 +990,47 @@ function generateMaps(src){
     }
   }
   putImageData("canvas-ao",ao,w,h);
+
+  // Emissive map (bright areas)
+  const emi = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>200?g:0;
+    emi.data[i]=emi.data[i+1]=emi.data[i+2]=v; emi.data[i+3]=255;
+  }
+  putImageData("canvas-emissive",emi,w,h);
+
+  // Curvature map (edge detection)
+  const curv = new ImageData(w,h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      const c=gray(i);
+      const r=gray((y*w+Math.min(x+1,w-1))*4);
+      const d=gray((Math.min(y+1,h-1)*w+x)*4);
+      const edge=Math.min(255,Math.abs(c-r)*3+Math.abs(c-d)*3);
+      curv.data[i]=curv.data[i+1]=curv.data[i+2]=edge; curv.data[i+3]=255;
+    }
+  }
+  putImageData("canvas-curvature",curv,w,h);
+
+  // Specular map (mid-range values)
+  const spec = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=Math.min(255,g*1.2);
+    spec.data[i]=spec.data[i+1]=spec.data[i+2]=v; spec.data[i+3]=255;
+  }
+  putImageData("canvas-specular",spec,w,h);
+
+  // Bump map (similar to height, high contrast grayscale)
+  const bump = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>128?255:0;
+    bump.data[i]=bump.data[i+1]=bump.data[i+2]=v; bump.data[i+3]=255;
+  }
+  putImageData("canvas-bump",bump,w,h);
 }
 
 function drawToCanvas(id, src){
@@ -1003,7 +1049,7 @@ async function downloadTextures(){
   if(!texCanvas){return;}
   document.getElementById("tex-status").textContent="Generating ZIP...";
   const zip = new JSZip();
-  const ids = ["albedo","normal","roughness","ao"];
+  const ids = ["albedo","normal","roughness","ao","emissive","curvature","specular","bump"];
   for(const id of ids){
     const c = document.getElementById("canvas-"+id);
     const blob = await new Promise(r=>c.toBlob(r,"image/png"));
