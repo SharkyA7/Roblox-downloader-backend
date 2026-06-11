@@ -457,11 +457,17 @@ const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
-function toggleDropdown(e){
-  if(e) e.stopPropagation();
-  const m=document.getElementById("dropdown-menu");
-  m.style.display=m.style.display==="none"?"block":"none";
 }
+function toggleDropdown(e){
+  e.stopPropagation();
+  const m=document.getElementById('dropdown-menu');
+  if(m.style.display==='none' || m.style.display===''){
+    m.style.display='block';
+  } else {
+    m.style.display='none';
+  }
+}
+
 document.addEventListener("click",function(e){
   if(!e.target.closest(".tab-dropdown")){
     const m=document.getElementById("dropdown-menu");
