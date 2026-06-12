@@ -424,6 +424,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">CURVATURE</p><canvas id="canvas-curvature" style="width:100%;border-radius:4px"></canvas></div>
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">SPECULAR</p><canvas id="canvas-specular" style="width:100%;border-radius:4px"></canvas></div>
         <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">BUMP</p><canvas id="canvas-bump" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">METALLIC</p><canvas id="canvas-metallic" style="width:100%;border-radius:4px"></canvas></div>
       </div>
       <div style="margin-bottom:10px;padding:10px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:4px;font-size:8px;color:#ffaa00;line-height:1.8">⚠ NOTED: Baking technique using Ibis Paint only works in Prisma 3D.</div>
       <button class="btn btn-green" onclick="downloadTextures()">⬇ DOWNLOAD ALL MAPS (ZIP)</button>
@@ -1031,6 +1032,15 @@ function generateMaps(src){
     bump.data[i]=bump.data[i+1]=bump.data[i+2]=v; bump.data[i+3]=255;
   }
   putImageData("canvas-bump",bump,w,h);
+
+  // Metallic map (very bright or very dark areas)
+  const metal = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>180?255:g<50?100:0;
+    metal.data[i]=metal.data[i+1]=metal.data[i+2]=v; metal.data[i+3]=255;
+  }
+  putImageData("canvas-metallic",metal,w,h);
 }
 
 function drawToCanvas(id, src){
@@ -1049,7 +1059,7 @@ async function downloadTextures(){
   if(!texCanvas){return;}
   document.getElementById("tex-status").textContent="Generating ZIP...";
   const zip = new JSZip();
-  const ids = ["albedo","normal","roughness","ao","emissive","curvature","specular","bump"];
+  const ids = ["albedo","normal","roughness","ao","emissive","curvature","specular","bump","metallic"];
   for(const id of ids){
     const c = document.getElementById("canvas-"+id);
     const blob = await new Promise(r=>c.toBlob(r,"image/png"));
