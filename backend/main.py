@@ -76,7 +76,7 @@ def rget_cdn(url):
     r.raise_for_status()
     return r.content
 
-def get_3d_manifest(uid, retries=6):
+def get_3d_manifest(uid, retries=3):
     url = f"https://thumbnails.roblox.com/v1/users/avatar-3d?userId={uid}"
     for i in range(retries):
         try:
@@ -84,7 +84,7 @@ def get_3d_manifest(uid, retries=6):
             r = s.get(url, timeout=15)
             if r.status_code != 200:
                 print(f"[3d manifest] status {r.status_code}: {r.text[:100]}")
-                time.sleep(3)
+                time.sleep(1)
                 continue
             d = r.json()
             print(f"[3d manifest] response: {str(d)[:150]}")
