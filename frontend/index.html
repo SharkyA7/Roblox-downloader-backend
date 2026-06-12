@@ -25,6 +25,7 @@ h1{font-family:'Press Start 2P',monospace;font-size:clamp(12px,2.5vw,20px);color
 main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
 .tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--gray2)}
 .tab{flex:1;text-align:center;padding:12px;font-family:'Press Start 2P',monospace;font-size:9px;
+.tab-dropdown{position:relative;flex:1}.dropdown-menu{position:absolute;top:100%;right:0;background:var(--s1);border:1px solid var(--gray2);border-radius:4px;z-index:9999;min-width:140px}.dropdown-item{padding:10px 14px;font-family:"Press Start 2P",monospace;font-size:8px;color:var(--gray);cursor:pointer;white-space:nowrap}.dropdown-item:hover{background:var(--s2);color:var(--red)}
      color:var(--gray);cursor:pointer;transition:all .2s;letter-spacing:1px;border-bottom:2px solid transparent;margin-bottom:-2px}
 .tab:hover{color:var(--white)}
 .tab.active{color:var(--red);border-bottom-color:var(--red)}
@@ -241,7 +242,14 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
   <div class="tabs">
     <div class="tab active" onclick="switchTab('avatar')">👤 AVATAR</div>
     <div class="tab" onclick="switchTab('catalog')">🛍️ KATALOG</div>
-    <div class="tab" onclick="switchTab('api')">📡 API DOCS</div>
+    <div class="tab" onclick="switchTab('audio')">🎵 AUDIO</div>
+    <div class="tab-dropdown">
+      <button class="tab" onclick="toggleDropdown(event)">⚙️ MORE ▼</button>
+      <div class="dropdown-menu" id="dropdown-menu" style="display:none">
+        <div class="dropdown-item" onclick="switchTab('texture');toggleDropdown()">🎨 TEXTURE</div>
+        <div class="dropdown-item" onclick="switchTab('api');toggleDropdown()">📡 API DOCS</div>
+      </div>
+    </div>
   </div>
 
   <!-- ── AVATAR PANEL ── -->
@@ -368,7 +376,61 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     </div>
   </div>
 
+  <!-- ── AUDIO PANEL ── -->
+  <div class="panel" id="panel-audio">
+    <div class="card">
+      <div class="label">CARI AUDIO</div>
+      <input class="inp" id="audio-input" type="number" placeholder="Audio ID (contoh: 139084379039051)">
+      <p style="font-size:9px;color:var(--gray);margin-top:4px">Ambil ID dari URL: roblox.com/library/ID/nama-audio</p>
+      <button class="btn" id="audio-btn" onclick="fetchAudio()">▶ FETCH</button>
+      <div id="audio-status" style="margin-top:8px;font-size:9px"></div>
+    </div>
+    <div class="card" id="audio-result" style="display:none">
+      <div class="label">DETAIL AUDIO</div>
+      <div id="audio-name" style="font-size:11px;color:var(--red);margin-bottom:8px"></div>
+      <div style="font-size:9px;color:var(--gray);line-height:2">
+        <div>CREATOR: <span id="audio-creator" style="color:var(--white)"></span></div>
+        <div>ASSET ID: <span id="audio-id" style="color:var(--green)"></span></div>
+        <div>DIBUAT: <span id="audio-created" style="color:var(--white)"></span></div>
+      </div>
+      <div style="margin-top:12px;padding:10px;background:rgba(232,0,11,.08);border:1px solid rgba(232,0,11,.3);border-radius:4px;font-size:9px;color:#ffaaaa">
+        ⚠ Audio ini mungkin dilindungi hak cipta. Hanya download audio milik kamu atau yang kamu punya izin.<br><br>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--white)">
+          <input type="checkbox" id="audio-agree" onchange="toggleAudioDownload()"> Saya mengerti dan bertanggung jawab atas penggunaan audio ini
+        </label>
+      </div>
+      <button class="btn" id="audio-dl-btn" onclick="downloadAudio()" disabled style="margin-top:10px;opacity:0.5">⬇ DOWNLOAD AUDIO + INFO</button>
+    </div>
+  </div>
+
   <!-- ── API PANEL ── -->
+  <!-- ── TEXTURE PANEL ── -->
+  <div class="panel" id="panel-texture">
+    <div class="card">
+      <div class="label">🎨 TEXTURE MAP GENERATOR</div>
+      <p style="font-size:9px;color:var(--gray);margin-bottom:12px;line-height:1.8">Upload texture untuk generate Normal, Roughness, AO, dan Height map. Cocok untuk Nomad Sculpt dan Prisma 3D.</p>
+      <input type="file" id="tex-input" accept="image/*" onchange="loadTexture(event)" style="display:none">
+      <button class="btn" onclick="document.getElementById('tex-input').click()">📁 UPLOAD TEXTURE</button>
+      <div id="tex-status" style="margin-top:8px;font-size:9px;color:var(--gray)"></div>
+    </div>
+    <div class="card" id="tex-result" style="display:none">
+      <div class="label">PREVIEW</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">ALBEDO</p><canvas id="canvas-albedo" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">NORMAL</p><canvas id="canvas-normal" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">ROUGHNESS</p><canvas id="canvas-roughness" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">AO</p><canvas id="canvas-ao" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">EMISSIVE</p><canvas id="canvas-emissive" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">CURVATURE</p><canvas id="canvas-curvature" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">SPECULAR</p><canvas id="canvas-specular" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">BUMP</p><canvas id="canvas-bump" style="width:100%;border-radius:4px"></canvas></div>
+        <div><p style="font-size:8px;color:var(--gray);margin-bottom:4px">METALLIC</p><canvas id="canvas-metallic" style="width:100%;border-radius:4px"></canvas></div>
+      </div>
+      <div style="margin-bottom:10px;padding:10px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:4px;font-size:8px;color:#ffaa00;line-height:1.8">⚠ NOTED: Baking technique using Ibis Paint only works in Prisma 3D.</div>
+      <button class="btn btn-green" onclick="downloadTextures()">⬇ DOWNLOAD ALL MAPS (ZIP)</button>
+    </div>
+  </div>
+
   <div class="panel" id="panel-api">
     <div class="card">
       <div class="label">ENDPOINT API</div>
@@ -397,14 +459,31 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
 <footer>ROBLOX 3D DOWNLOADER · UNOFFICIAL · NOT AFFILIATED WITH ROBLOX CORPORATION</footer>
 
 <script>
-const BASE = '';
+const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','api'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','audio','api','texture'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
 }
+
+function toggleDropdown(e){
+  e.stopPropagation();
+  const m=document.getElementById('dropdown-menu');
+  if(m.style.display==='none' || m.style.display===''){
+    m.style.display='block';
+  } else {
+    m.style.display='none';
+  }
+}
+
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".tab-dropdown")){
+    const m=document.getElementById("dropdown-menu");
+    if(m) m.style.display="none";
+  }
+});
 
 // ── UI HELPERS ────────────────────────────────────────────────────
 function st(id,msg,type){
@@ -785,6 +864,216 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 document.getElementById('av-input').addEventListener('keydown',e=>{ if(e.key==='Enter') fetchAvatar(); });
 document.getElementById('cat-input').addEventListener('keydown',e=>{ if(e.key==='Enter') fetchCatalog(); });
+
+let currentAudioId = null;
+
+async function fetchAudio(){
+  const id = document.getElementById("audio-input").value.trim();
+  if(!id){document.getElementById("audio-status").textContent="Masukkan Audio ID.";return;}
+  const btn = document.getElementById("audio-btn");
+  btn.disabled = true;
+  document.getElementById("audio-status").textContent="Mengambil info audio...";
+  try{
+    const res = await fetch(`${BASE}/api/audio/info?id=${id}`);
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error||res.statusText);
+    currentAudioId = data.assetId;
+    document.getElementById("audio-name").textContent = data.name;
+    document.getElementById("audio-creator").textContent = data.creator;
+    document.getElementById("audio-id").textContent = data.assetId;
+    document.getElementById("audio-created").textContent = data.created?.slice(0,10)||"";
+    document.getElementById("audio-result").style.display="block";
+    document.getElementById("audio-agree").checked = false;
+    document.getElementById("audio-dl-btn").disabled = true;
+    document.getElementById("audio-dl-btn").style.opacity = "0.5";
+    document.getElementById("audio-status").textContent="";
+  }catch(e){
+    document.getElementById("audio-status").textContent="✗ "+e.message;
+  }finally{ btn.disabled=false; }
+}
+
+function toggleAudioDownload(){
+  const checked = document.getElementById("audio-agree").checked;
+  const btn = document.getElementById("audio-dl-btn");
+  btn.disabled = !checked;
+  btn.style.opacity = checked ? "1" : "0.5";
+}
+
+async function downloadAudio(){
+  if(!currentAudioId) return;
+  const btn = document.getElementById("audio-dl-btn");
+  btn.disabled = true;
+  document.getElementById("audio-status").textContent="Mengunduh audio...";
+  try{
+    const res = await fetch(`${BASE}/api/audio/download?id=${currentAudioId}`);
+    if(!res.ok){ const e=await res.json(); throw new Error(e.error||res.statusText); }
+    const blob = await res.blob();
+    const a = Object.assign(document.createElement("a"),{
+      href: URL.createObjectURL(blob),
+      download: `audio_${currentAudioId}.zip`
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+    document.getElementById("audio-status").textContent="✓ Download selesai!";
+  }catch(e){
+    document.getElementById("audio-status").textContent="✗ "+e.message;
+  }finally{ btn.disabled=false; }
+}
+
+document.getElementById("audio-input").addEventListener("keydown",e=>{ if(e.key==="Enter") fetchAudio(); });
+
+// ── TEXTURE GENERATOR ────────────────────────────────────────────
+let texCanvas = null;
+
+function loadTexture(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  document.getElementById("tex-status").textContent = "Loading texture...";
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = function(){
+    texCanvas = document.createElement("canvas");
+    texCanvas.width = img.width;
+    texCanvas.height = img.height;
+    const ctx = texCanvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+    URL.revokeObjectURL(url);
+    generateMaps(texCanvas);
+    document.getElementById("tex-result").style.display = "block";
+    document.getElementById("tex-status").textContent = "✓ Texture loaded: "+img.width+"x"+img.height;
+  };
+  img.src = url;
+}
+
+function generateMaps(src){
+  const w = src.width, h = src.height;
+  const ctx = src.getContext("2d");
+  const data = ctx.getImageData(0,0,w,h).data;
+
+  // Albedo
+  drawToCanvas("canvas-albedo", src);
+
+  // Grayscale helper
+  function gray(i){ return 0.299*data[i]+0.587*data[i+1]+0.114*data[i+2]; }
+
+  // Normal map
+  const nrm = new ImageData(w,h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const l=gray(((y*w+Math.max(x-1,0))*4));
+      const r=gray(((y*w+Math.min(x+1,w-1))*4));
+      const u=gray(((Math.max(y-1,0)*w+x)*4));
+      const d=gray(((Math.min(y+1,h-1)*w+x)*4));
+      const nx=((l-r)/255)*0.5+0.5;
+      const ny=((u-d)/255)*0.5+0.5;
+      const i=(y*w+x)*4;
+      nrm.data[i]=nx*255; nrm.data[i+1]=ny*255; nrm.data[i+2]=255; nrm.data[i+3]=255;
+    }
+  }
+  putImageData("canvas-normal",nrm,w,h);
+
+  // Roughness map (inverted grayscale)
+  const rgh = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=255-gray(i);
+    rgh.data[i]=rgh.data[i+1]=rgh.data[i+2]=g; rgh.data[i+3]=255;
+  }
+  putImageData("canvas-roughness",rgh,w,h);
+
+  // AO map (darkened edges)
+  const ao = new ImageData(w,h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      const c=gray(i);
+      const edge=Math.abs(c-(y>0?gray(((y-1)*w+x)*4):c))+Math.abs(c-(x>0?gray((y*w+x-1)*4):c));
+      const ao_val=Math.max(0,c-edge*2);
+      ao.data[i]=ao.data[i+1]=ao.data[i+2]=ao_val; ao.data[i+3]=255;
+    }
+  }
+  putImageData("canvas-ao",ao,w,h);
+
+  // Emissive map (bright areas)
+  const emi = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>200?g:0;
+    emi.data[i]=emi.data[i+1]=emi.data[i+2]=v; emi.data[i+3]=255;
+  }
+  putImageData("canvas-emissive",emi,w,h);
+
+  // Curvature map (edge detection)
+  const curv = new ImageData(w,h);
+  for(let y=0;y<h;y++){
+    for(let x=0;x<w;x++){
+      const i=(y*w+x)*4;
+      const c=gray(i);
+      const r=gray((y*w+Math.min(x+1,w-1))*4);
+      const d=gray((Math.min(y+1,h-1)*w+x)*4);
+      const edge=Math.min(255,Math.abs(c-r)*3+Math.abs(c-d)*3);
+      curv.data[i]=curv.data[i+1]=curv.data[i+2]=edge; curv.data[i+3]=255;
+    }
+  }
+  putImageData("canvas-curvature",curv,w,h);
+
+  // Specular map (mid-range values)
+  const spec = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=Math.min(255,g*1.2);
+    spec.data[i]=spec.data[i+1]=spec.data[i+2]=v; spec.data[i+3]=255;
+  }
+  putImageData("canvas-specular",spec,w,h);
+
+  // Bump map (similar to height, high contrast grayscale)
+  const bump = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>128?255:0;
+    bump.data[i]=bump.data[i+1]=bump.data[i+2]=v; bump.data[i+3]=255;
+  }
+  putImageData("canvas-bump",bump,w,h);
+
+  // Metallic map (very bright or very dark areas)
+  const metal = new ImageData(w,h);
+  for(let i=0;i<data.length;i+=4){
+    const g=gray(i);
+    const v=g>180?255:g<50?100:0;
+    metal.data[i]=metal.data[i+1]=metal.data[i+2]=v; metal.data[i+3]=255;
+  }
+  putImageData("canvas-metallic",metal,w,h);
+}
+
+function drawToCanvas(id, src){
+  const c = document.getElementById(id);
+  c.width=src.width; c.height=src.height;
+  c.getContext("2d").drawImage(src,0,0);
+}
+
+function putImageData(id,imgData,w,h){
+  const c=document.getElementById(id);
+  c.width=w; c.height=h;
+  c.getContext("2d").putImageData(imgData,0,0);
+}
+
+async function downloadTextures(){
+  if(!texCanvas){return;}
+  document.getElementById("tex-status").textContent="Generating ZIP...";
+  const zip = new JSZip();
+  const ids = ["albedo","normal","roughness","ao","emissive","curvature","specular","bump","metallic"];
+  for(const id of ids){
+    const c = document.getElementById("canvas-"+id);
+    const blob = await new Promise(r=>c.toBlob(r,"image/png"));
+    zip.file(id+".png", blob);
+  }
+  const content = await zip.generateAsync({type:"blob"});
+  const a = Object.assign(document.createElement("a"),{
+    href: URL.createObjectURL(content),
+    download: "texture_maps.zip"
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  document.getElementById("tex-status").textContent="✓ Download selesai!";
+}
 </script>
 </body>
 </html>
+<!-- cache-bust-v2 -->
