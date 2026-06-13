@@ -428,6 +428,8 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
       </div>
       <div style="margin-bottom:10px;padding:10px;background:rgba(255,170,0,.08);border:1px solid rgba(255,170,0,.3);border-radius:4px;font-size:8px;color:#ffaa00;line-height:1.8">⚠ NOTED: Baking technique using Ibis Paint only works in Prisma 3D.</div>
       <button class="btn btn-green" onclick="downloadTextures()">⬇ DOWNLOAD ALL MAPS (ZIP)</button>
+      <button class="btn" onclick="bakeForPrisma()" style="margin-top:8px;background:linear-gradient(135deg,#7c3aed,#4f46e5)">🔥 BAKE FOR PRISMA 3D</button>
+      <div id="bake-status" style="margin-top:8px;font-size:9px;color:var(--gray)"></div>
     </div>
   </div>
 
@@ -1073,7 +1075,66 @@ async function downloadTextures(){
   a.click(); URL.revokeObjectURL(a.href);
   document.getElementById("tex-status").textContent="✓ Download selesai!";
 }
-</script>
-</body>
-</html>
-<!-- cache-bust-v2 -->
+
+async function bakeForPrisma(){
+  if(!texCanvas){ return; }
+  const st = document.getElementById("bake-status");
+  st.textContent = "Baking all maps for Prisma 3D...";
+  const w = texCanvas.width, h = texCanvas.height;
+  const zip = new JSZip();
+  function getD(id){ return document.getElementById("canvas-"+id).getContext("2d").getImageData(0,0,w,h).data; }
+  function newC(){ const c=document.createElement("canvas"); c.width=w; c.height=h; return c; }
+
+  // SLOT 1: Albedo + AO + Emissive baked
+  const alb=getD("albedo"), ao=getD("ao"), emi=getD("emissive");
+  const c1=newC(), x1=c1.getContext("2d"), d1=x1.createImageData(w,h);
+  for(let i=0;i<alb.length;i+=4){
+    d1.data[i]  =Math.min(255,(alb[i]  *ao[i]  /255)+emi[i]  *0.2);
+    d1.data[i+1]=Math.min(255,(alb[i+1]*ao[i+1]/255)+emi[i+1]*0.2);
+    d1.data[i+2]=Math.min(255,(alb[i+2]*ao[i+2]/255)+emi[i+2]*0.2);
+    d1.data[i+3]=255;
+  }
+  x1.putImageData(d1,0,0);
+  zip.file("1_albedo_baked.png", await new Promise(r=>c1.toBlob(r,"image/png")));
+
+  // SLOT 2: Normal + Bump blended
+  const nrm=getD("normal"), bmp=getD("bump");
+  const c2=newC(), x2=c2.getContext("2d"), d2=x2.createImageData(w,h);
+  for(let i=0;i<nrm.length;i+=4){
+    d2.data[i]  =Math.min(255,nrm[i]  *0.8+bmp[i]  *0.2);
+    d2.data[i+1]=Math.min(255,nrm[i+1]*0.8+bmp[i+1]*0.2);
+    d2.data[i+2]=Math.min(255,nrm[i+2]*0.8+bmp[i+2]*0.2);
+    d2.data[i+3]=255;
+  }
+  x2.putImageData(d2,0,0);
+  zip.file("2_normal_baked.png", await new Promise(r=>c2.toBlob(r,"image/png")));
+
+  // SLOT 3: Roughness + Specular + Metallic + Curvature baked into Reflection
+  const rgh=getD("roughness"), spec=getD("specular"), met=getD("metallic"), curv=getD("curvature");
+  const c3=newC(), x3=c3.getContext("2d"), d3=x3.createImageData(w,h);
+  for(let i=0;i<rgh.length;i+=4){
+    const refl=255-rgh[i];
+    const v=Math.min(255,refl*0.5+spec[i]*0.2+met[i]*0.2+curv[i]*0.1);
+    d3.data[i]=d3.data[i+1]=d3.data[i+2]=v;
+    d3.data[i+3]=255;
+  }
+  x3.putImageData(d3,0,0);
+  zip.file("3_reflection_baked.png", await new Promise(r=>c3.toBlob(r,"image/png")));
+
+  zip.file("README.txt", "PRISMA 3D BAKED TEXTURES
+========================
+Slot 1 - Albedo: 1_albedo_baked.png (Albedo+AO+Emissive)
+Slot 2 - Normal: 2_normal_baked.png (Normal+Bump)
+Slot 3 - Reflection: 3_reflection_baked.png (Roughness+Specular+Metallic+Curvature)
+
+NOTE: Baking technique using Ibis Paint only works in Prisma 3D.
+");
+
+  const content = await zip.generateAsync({type:"blob"});
+  const a = Object.assign(document.createElement("a"),{
+    href: URL.createObjectURL(content),
+    download: "prisma3d_baked.zip"
+  });
+  a.click(); URL.revokeObjectURL(a.href);
+  st.textContent = "✓ All maps baked and downloaded!";
+}
