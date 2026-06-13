@@ -1125,14 +1125,7 @@ async function bakeForPrisma(){
   x3.putImageData(d3,0,0);
   zip.file("3_reflection_baked.png", await new Promise(r=>c3.toBlob(r,"image/png")));
 
-  zip.file("README.txt", "PRISMA 3D BAKED TEXTURES
-========================
-Slot 1 - Albedo: 1_albedo_baked.png (Albedo+AO+Emissive)
-Slot 2 - Normal: 2_normal_baked.png (Normal+Bump)
-Slot 3 - Reflection: 3_reflection_baked.png (Roughness+Specular+Metallic+Curvature)
-
-NOTE: Baking technique using Ibis Paint only works in Prisma 3D.
-");
+  zip.file("README.txt", "PRISMA 3D BAKED TEXTURES\n========================\nSlot 1 - Albedo: 1_albedo_baked.png (Albedo+AO+Emissive)\nSlot 2 - Normal: 2_normal_baked.png (Normal+Bump)\nSlot 3 - Reflection: 3_reflection_baked.png (Roughness+Specular+Metallic+Curvature)\n\nNOTE: Baking technique using Ibis Paint only works in Prisma 3D.\n");
 
   const content = await zip.generateAsync({type:"blob"});
   const a = Object.assign(document.createElement("a"),{
@@ -1142,3 +1135,6 @@ NOTE: Baking technique using Ibis Paint only works in Prisma 3D.
   a.click(); URL.revokeObjectURL(a.href);
   st.textContent = "✓ All maps baked and downloaded!";
 }
+</script>
+</body>
+</html>
