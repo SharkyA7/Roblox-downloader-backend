@@ -226,7 +226,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     </div>
     <div class="modal-scan"></div>
     <div class="modal-footer">
-      <button class="modal-btn modal-btn-primary" onclick="closeModal()" data-i18n="btn_understand">✓ SAYA MENGERTI, LANJUTKAN</button>
+      <button class="modal-btn modal-btn-primary" onclick="document.getElementById('security-modal').style.display='none';localStorage.setItem('modal_seen','1')" data-i18n="btn_understand">✓ SAYA MENGERTI, LANJUTKAN</button>
       <button class="modal-btn modal-btn-secondary" onclick="window.open('https://github.com/SharkyA7/Roblox-downloader-backend','_blank')" data-i18n="btn_github">↗ LIHAT SOURCE CODE DI GITHUB</button>
     </div>
   </div>
