@@ -41,6 +41,29 @@ def get_scraper():
             _scraper.cookies.set(".ROBLOSECURITY", COOKIE, domain=".roblox.com")
     return _scraper
 
+def handle_roblox_error(e, context="request"):
+    """Generate pesan error yang jelas untuk 401/403/timeout dari Roblox API"""
+    msg = str(e)
+    if "401" in msg or "Unauthorized" in msg:
+        return jsonify({
+            "error": f"Cookie Roblox tidak valid atau sudah expired (401). Update ROBLOX_COOKIE di environment variables.",
+            "code": "COOKIE_EXPIRED",
+            "context": context
+        }), 401
+    if "403" in msg or "Forbidden" in msg:
+        return jsonify({
+            "error": f"Akses ditolak oleh Roblox CDN (403). Bisa karena rate limit atau Cloudflare challenge gagal. Coba lagi dalam beberapa saat.",
+            "code": "CLOUDFLARE_BLOCKED",
+            "context": context
+        }), 403
+    if "timeout" in msg.lower() or "timed out" in msg.lower():
+        return jsonify({
+            "error": f"Request ke Roblox timeout. Server Roblox lambat merespons, coba lagi.",
+            "code": "TIMEOUT",
+            "context": context
+        }), 504
+    return jsonify({"error": msg, "context": context}), 500
+
 def hdr(auth=False):
     h = {"User-Agent":"Mozilla/5.0","Accept":"application/json"}
     if auth and COOKIE: h["Cookie"] = f".ROBLOSECURITY={COOKIE}"
@@ -562,7 +585,7 @@ def avatar_v2():
         buf.seek(0)
         return Response(buf.read(), mimetype="application/zip",
             headers={"Content-Disposition":f'attachment; filename="{name}_avatar.zip"'})
-    except Exception as e: return jsonify({"error":str(e)}),500
+    except Exception as e: return handle_roblox_error(e, "avatar_download")
 
 @app.get("/api/v2/item")
 def item_v2():
@@ -629,7 +652,7 @@ def item_v2():
         fname = f"{safe_name}_{'gltf' if fmt=='gltf' else 'obj'}.zip"
         return Response(buf.read(), mimetype="application/zip",
             headers={"Content-Disposition":f'attachment; filename="{fname}"'})
-    except Exception as e: return jsonify({"error":str(e)}),500
+    except Exception as e: return handle_roblox_error(e, "catalog_item_download")
 
 @app.get("/api/proxy/avatar-3d")
 def proxy_avatar_3d():
@@ -743,7 +766,7 @@ def audio_download():
         buf.seek(0)
         return Response(buf.read(), mimetype="application/zip",
             headers={"Content-Disposition": f'attachment; filename="{safe}_audio.zip"'})
-    except Exception as e: return jsonify({"error":str(e)}),500
+    except Exception as e: return handle_roblox_error(e, "audio_download")
 
 # Railway / production WSGI entry point
 application = app

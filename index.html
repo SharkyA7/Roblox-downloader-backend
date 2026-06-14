@@ -588,7 +588,7 @@ async function downloadAvatar(format){
     if(!res.ok){
       const t=await res.text();
       let e={error:t}; try{e=JSON.parse(t);}catch(_){}
-      throw new Error(e.error||res.statusText);
+      throw e;
     }
     const blob=await res.blob();
     const a=Object.assign(document.createElement('a'),{
@@ -598,7 +598,7 @@ async function downloadAvatar(format){
     a.click(); URL.revokeObjectURL(a.href);
     st('av-status',`✓ Download selesai! Buka ZIP → import .obj di Nomad Sculpt / Prisma 3D`,'ok');
   }catch(e){
-    st('av-status','✗ '+e.message,'err');
+    showApiError('av-status', e.error?e:{message:e.message});
   }finally{
     if(btn) btn.disabled=false;
   }
@@ -655,7 +655,7 @@ async function downloadCatalog(format){
     });
     a.click(); URL.revokeObjectURL(a.href);
     st('cat-status',`✓ Download selesai!`,'ok');
-  }catch(e){ st('cat-status','✗ '+e.message,'err'); }
+  }catch(e){ showApiError('cat-status', e.error?e:{message:e.message}); }
 }
 
 // ── API TABLE ─────────────────────────────────────────────────────
@@ -919,8 +919,25 @@ async function downloadAudio(){
     a.click(); URL.revokeObjectURL(a.href);
     document.getElementById("audio-status").textContent="✓ Download selesai!";
   }catch(e){
-    document.getElementById("audio-status").textContent="✗ "+e.message;
+    showApiError("audio-status", e);
   }finally{ btn.disabled=false; }
+}
+
+function showApiError(elId, err){
+  let msg = err.message || err.error || "Terjadi kesalahan";
+  if(err.code === "COOKIE_EXPIRED"){
+    msg = "⚠ Server cookie expired. Admin perlu update ROBLOX_COOKIE.";
+  } else if(err.code === "CLOUDFLARE_BLOCKED"){
+    msg = "⚠ Roblox CDN sedang membatasi akses. Coba lagi dalam 30 detik.";
+  } else if(err.code === "TIMEOUT"){
+    msg = "⚠ Roblox lambat merespons. Coba lagi.";
+  }
+  const el = document.getElementById(elId);
+  if(typeof st === 'function' && el.className.includes('status')){
+    st(elId, '✗ '+msg, 'err');
+  } else {
+    el.textContent = "✗ " + msg;
+  }
 }
 
 document.getElementById("audio-input").addEventListener("keydown",e=>{ if(e.key==="Enter") fetchAudio(); });
