@@ -803,16 +803,15 @@ def model_info():
     """MVP: parse RBXM (Model assets from create.roblox.com), return manifest.
     Supports only MeshPart+Part, no UnionOperation, <=30 parts.
     Rotation is identity-fallback (not yet decoded)."""
-    from services.rbxm_parser import (
-        parse_chunks, parse_inst_chunks, find_prop_chunk,
-        decode_string_array, decode_vector3_array, decode_cframe_positions,
-        decode_color3uint8_array, RBXMParseError
-    )
-
     aid = request.args.get("id", "")
     if not aid: return jsonify({"error": "id required"}), 400
 
     try:
+        from services.rbxm_parser import (
+            parse_chunks, parse_inst_chunks, find_prop_chunk,
+            decode_string_array, decode_vector3_array, decode_cframe_positions,
+            decode_color3uint8_array, RBXMParseError
+        )
         file_id = int(aid)
         s = get_scraper()
         r = s.get(f"https://assetdelivery.roblox.com/v1/asset/?id={file_id}", timeout=25)

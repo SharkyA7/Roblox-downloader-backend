@@ -3,3 +3,4 @@ httpx==0.27.0
 python-dotenv==1.0.1
 python-multipart==0.0.9
 cloudscraper
+lz4
