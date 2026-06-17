@@ -243,6 +243,7 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     <div class="tab active" onclick="switchTab('avatar')">👤 AVATAR</div>
     <div class="tab" onclick="switchTab('catalog')">🛍️ KATALOG</div>
     <div class="tab" onclick="switchTab('audio')">🎵 AUDIO</div>
+    <div class="tab" onclick="switchTab('model3d')">📦 3D MODEL</div>
     <div class="tab-dropdown">
       <button class="tab" onclick="toggleDropdown(event)">⚙️ MORE ▼</button>
       <div class="dropdown-menu" id="dropdown-menu" style="display:none">
@@ -403,6 +404,33 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
     </div>
   </div>
 
+  <!-- ── 3D MODEL PANEL ── -->
+  <div class="panel" id="panel-model3d">
+    <div class="card">
+      <div class="label">CARI 3D MODEL (create.roblox.com)</div>
+      <input class="inp" id="model-input" type="text" placeholder="Asset ID atau URL create.roblox.com">
+      <p style="font-size:9px;color:var(--gray);margin-top:4px">
+        Contoh: "9797218535" atau "https://create.roblox.com/store/asset/9797218535/..."<br>
+        ⚠ MVP: hanya mendukung model sederhana (≤30 parts, tanpa Union/CSG)
+      </p>
+      <button class="btn" id="model-btn" onclick="fetchModelInfo()">▶ FETCH</button>
+      <div id="model-status" style="margin-top:8px;font-size:9px"></div>
+    </div>
+
+    <div class="card" id="model-result" style="display:none">
+      <div class="label">ANALISIS MODEL</div>
+      <div id="model-support-badge" style="font-size:11px;margin-bottom:10px"></div>
+      <div style="font-size:10px;line-height:1.8;color:var(--gray)">
+        <div>MESH PARTS: <span id="model-meshpart-count" style="color:var(--white)"></span></div>
+        <div>PARTS: <span id="model-part-count" style="color:var(--white)"></span></div>
+        <div>UNION/CSG: <span id="model-union-count" style="color:var(--white)"></span></div>
+        <div>TOTAL: <span id="model-total-count" style="color:var(--white)"></span></div>
+      </div>
+      <div id="model-reasons" style="margin-top:10px;font-size:9px;color:#ff7777"></div>
+      <button class="btn btn-green" id="model-build-btn" onclick="buildModelGLB()" disabled style="margin-top:14px;opacity:0.5">⬇ BUILD GLB (segera hadir)</button>
+    </div>
+  </div>
+
   <!-- ── API PANEL ── -->
   <!-- ── TEXTURE PANEL ── -->
   <div class="panel" id="panel-texture">
@@ -465,7 +493,7 @@ const BASE = 'https://web-production-62c2e.up.railway.app';
 
 // ── TABS ──────────────────────────────────────────────────────────
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','audio'][i]===name));
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['avatar','catalog','audio','model3d'][i]===name));
   document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+name).classList.add('active');
 }
