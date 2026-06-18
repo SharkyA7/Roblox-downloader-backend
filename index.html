@@ -261,6 +261,22 @@ window.buildModelGLB = async function(){
     const root = new THREE.Group();
     root.name = `model_${data.assetId}`;
 
+    function applyTransform(mesh, part){
+      const [r00,r01,r02,r10,r11,r12,r20,r21,r22] = part.rotation.value;
+      const [px,py,pz] = part.position.value;
+      const m4 = new THREE.Matrix4();
+      m4.set(
+        r00, r01, r02, px,
+        r10, r11, r12, py,
+        r20, r21, r22, pz,
+        0, 0, 0, 1
+      );
+      const pos = new THREE.Vector3(), quat = new THREE.Quaternion(), scl = new THREE.Vector3();
+      m4.decompose(pos, quat, scl);
+      mesh.position.copy(pos);
+      mesh.quaternion.copy(quat);
+    }
+
     let skippedParts = 0;
     for(const part of meshParts){
       const geom = meshGeomCache[part.meshId];
@@ -268,20 +284,18 @@ window.buildModelGLB = async function(){
       const [r,g,b] = part.color.value;
       const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(r/255, g/255, b/255) });
       const mesh = new THREE.Mesh(geom.clone(), mat);
-      const [px,py,pz] = part.position.value;
-      mesh.position.set(px, py, pz);
+      applyTransform(mesh, part);
       mesh.name = part.name || "MeshPart";
       root.add(mesh);
     }
 
     for(const part of boxParts){
       const [sx,sy,sz] = part.size.value;
-      const [px,py,pz] = part.position.value;
       const [r,g,b] = part.color.value;
       const geom = new THREE.BoxGeometry(sx, sy, sz);
       const mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(r/255, g/255, b/255) });
       const mesh = new THREE.Mesh(geom, mat);
-      mesh.position.set(px, py, pz);
+      applyTransform(mesh, part);
       mesh.name = part.name || "Part";
       root.add(mesh);
     }
@@ -297,7 +311,7 @@ window.buildModelGLB = async function(){
       a.click();
       URL.revokeObjectURL(a.href);
       const failNote = failedMeshes > 0 ? ` (${failedMeshes} mesh gagal di-skip)` : "";
-      statusEl.textContent = `✓ GLB berhasil! ${meshParts.length} mesh + ${boxParts.length} box part${failNote}. ⚠ Rotasi belum didukung (identity).`;
+      statusEl.textContent = `✓ GLB berhasil! ${meshParts.length} mesh + ${boxParts.length} box part${failNote}. Rotasi sudah didukung.`;
       btn.disabled = false;
     }, (err) => {
       statusEl.textContent = "✗ Export GLB gagal: " + err.message;
