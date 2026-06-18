@@ -1464,11 +1464,10 @@ def model_texture():
     raw_id = request.args.get("textureId", "")
     if not raw_id:
         return jsonify({"error": "textureId required"}), 400
-    try:
-        clean_id = raw_id.replace("rbxassetid://", "").strip()
-        tex_asset_id = int(clean_id)
-    except ValueError:
-        return jsonify({"error": "textureId tidak valid"}), 400
+    m = re.search(r"(\d{4,})", raw_id)
+    if not m:
+        return jsonify({"error": "textureId tidak valid - tidak ada angka ID ditemukan"}), 400
+    tex_asset_id = int(m.group(1))
 
     try:
         s = get_scraper()
