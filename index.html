@@ -654,10 +654,15 @@ window.buildModelGLB = async function(){
       <div class="label">CARI 3D MODEL (create.roblox.com)</div>
       <input class="inp" id="model-input" type="text" placeholder="Asset ID atau URL create.roblox.com">
       <p style="font-size:9px;color:var(--gray);margin-top:4px">
-        Contoh: "9797218535" atau "https://create.roblox.com/store/asset/9797218535/..."<br>
-        ⚠ MVP: hanya mendukung model sederhana (≤30 parts, tanpa Union/CSG)
+        Contoh: "9797218535" atau "https://create.roblox.com/store/asset/9797218535/..."
       </p>
-      <button class="btn" id="model-btn" onclick="fetchModelInfo()">▶ FETCH</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <button class="btn" id="model-btn" onclick="fetchModelInfo()" style="flex:1">▶ FETCH &amp; ANALYZE</button>
+        <button class="btn" id="model-dl-rbxm-btn" onclick="downloadRBXM()" style="flex:1;background:#5865f2">⬇ DOWNLOAD RBXM</button>
+      </div>
+      <p style="font-size:9px;color:var(--gray);margin-top:4px">
+        RBXM = file asli Roblox, buka di Roblox Studio. Convert ke GLB/OBJ: FETCH dulu lalu BUILD GLB (≤100 parts, no Union/CSG)
+      </p>
       <div id="model-status" style="margin-top:8px;font-size:9px"></div>
     </div>
 
@@ -671,7 +676,7 @@ window.buildModelGLB = async function(){
         <div>TOTAL: <span id="model-total-count" style="color:var(--white)"></span></div>
       </div>
       <div id="model-reasons" style="margin-top:10px;font-size:9px;color:#ff7777"></div>
-      <button class="btn btn-green" id="model-build-btn" onclick="buildModelGLB()" disabled style="margin-top:14px;opacity:0.5">⬇ BUILD GLB (segera hadir)</button>
+      <button class="btn btn-green" id="model-build-btn" onclick="buildModelGLB()" disabled style="margin-top:14px;opacity:0.5">⬇ BUILD GLB</button>
     </div>
   </div>
 
@@ -1235,6 +1240,33 @@ function extractAssetId(input) {
   input = input.trim();
   const m = input.match(/(?:create\.roblox\.com\/.*?\/)?(\d{5,})/);
   return m ? m[1] : input;
+}
+
+async function downloadRBXM(){
+  const raw = document.getElementById("model-input").value.trim();
+  if(!raw){ document.getElementById("model-status").textContent = "Masukkan Asset ID atau URL."; return; }
+  const id = extractAssetId(raw);
+  const btn = document.getElementById("model-dl-rbxm-btn");
+  btn.disabled = true;
+  document.getElementById("model-status").textContent = "⏳ Mengunduh file RBXM...";
+  try{
+    const res = await fetch(`${BASE}/api/v2/model/download?id=${encodeURIComponent(id)}`);
+    if(!res.ok){
+      const e = await res.json().catch(() => ({error: res.statusText}));
+      throw new Error(e.error || res.statusText);
+    }
+    const blob = await res.blob();
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(blob),
+      download: `${id}.rbxm`
+    });
+    a.click(); URL.revokeObjectURL(a.href);
+    document.getElementById("model-status").textContent = `✓ Download ${id}.rbxm selesai! Buka di Roblox Studio.`;
+  }catch(e){
+    document.getElementById("model-status").textContent = "✗ " + e.message;
+  }finally{
+    btn.disabled = false;
+  }
 }
 
 async function fetchModelInfo(){
