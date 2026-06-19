@@ -291,9 +291,9 @@ window.convertZipToGLB = async function(zipBlob, baseName, statusCallback){
   URL.revokeObjectURL(a.href);
 };
 
-window.buildModelGLB = async function(){
-  const statusEl = document.getElementById("model-status");
-  const btn = document.getElementById("model-build-btn");
+window.buildModelGLB = async function(customStatusEl, customBtn){
+  const statusEl = customStatusEl || document.getElementById("model-status");
+  const btn = customBtn || document.getElementById("model-build-btn");
   if(!window.currentModelData || !window.currentModelData.supported){
     statusEl.textContent = "✗ Tidak ada model yang didukung untuk dibangun.";
     return;
@@ -677,6 +677,28 @@ window.buildModelGLB = async function(){
       </div>
       <div id="model-reasons" style="margin-top:10px;font-size:9px;color:#ff7777"></div>
       <button class="btn btn-green" id="model-build-btn" onclick="buildModelGLB()" disabled style="margin-top:14px;opacity:0.5">⬇ BUILD GLB</button>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="label">CONVERT RBXM → GLB</div>
+      <p style="font-size:9px;color:var(--gray);margin-top:4px;margin-bottom:8px">
+        Upload file .rbxm yang sudah kamu download → parse → export GLB. Tidak perlu ID, tidak perlu internet ke Roblox untuk parsing.
+      </p>
+      <input type="file" id="rbxm-file-input" accept=".rbxm,.rbxmx" style="display:none" onchange="handleRBXMUpload(event)">
+      <button class="btn" onclick="document.getElementById('rbxm-file-input').click()" style="width:100%">📁 PILIH FILE .RBXM</button>
+      <div id="rbxm-upload-status" style="margin-top:8px;font-size:9px"></div>
+      <div class="card" id="rbxm-result" style="display:none;margin-top:10px">
+        <div id="rbxm-support-badge" style="font-size:11px;margin-bottom:8px"></div>
+        <div style="font-size:10px;line-height:1.8;color:var(--gray)">
+          <div>FILE: <span id="rbxm-filename" style="color:var(--white)"></span></div>
+          <div>MESH PARTS: <span id="rbxm-meshpart-count" style="color:var(--white)"></span></div>
+          <div>PARTS: <span id="rbxm-part-count" style="color:var(--white)"></span></div>
+          <div>UNION/CSG: <span id="rbxm-union-count" style="color:var(--white)"></span></div>
+          <div>TOTAL: <span id="rbxm-total-count" style="color:var(--white)"></span></div>
+        </div>
+        <div id="rbxm-reasons" style="margin-top:8px;font-size:9px;color:#ff7777"></div>
+        <button class="btn btn-green" id="rbxm-build-btn" onclick="buildFromUpload()" disabled style="margin-top:12px;opacity:0.5;width:100%">⬇ BUILD GLB DARI FILE</button>
+      </div>
     </div>
   </div>
 
@@ -1240,6 +1262,75 @@ function extractAssetId(input) {
   input = input.trim();
   const m = input.match(/(?:create\.roblox\.com\/.*?\/)?(\d{5,})/);
   return m ? m[1] : input;
+}
+
+let currentUploadData = null;
+
+async function handleRBXMUpload(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const statusEl = document.getElementById("rbxm-upload-status");
+  statusEl.textContent = "⏳ Menganalisis " + file.name + "...";
+  document.getElementById("rbxm-result").style.display = "none";
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try{
+    const res = await fetch(`${BASE}/api/v2/model/convert`, {
+      method: "POST",
+      body: formData
+    });
+    const data = await res.json();
+    if(!res.ok && !("supported" in data)) throw new Error(data.error || res.statusText);
+
+    currentUploadData = data;
+    window.currentModelData = data;
+
+    const badge = document.getElementById("rbxm-support-badge");
+    const buildBtn = document.getElementById("rbxm-build-btn");
+    if(data.supported){
+      badge.innerHTML = '<span style="color:#00ff99">✓ DIDUKUNG</span> — siap dikonversi ke GLB';
+      buildBtn.disabled = false;
+      buildBtn.style.opacity = "1";
+    } else {
+      badge.innerHTML = '<span style="color:#ff5555">✗ TIDAK DIDUKUNG</span>';
+      buildBtn.disabled = true;
+      buildBtn.style.opacity = "0.5";
+    }
+
+    document.getElementById("rbxm-filename").textContent = data.filename || file.name;
+    document.getElementById("rbxm-meshpart-count").textContent = data.meshPartCount ?? "—";
+    document.getElementById("rbxm-part-count").textContent = data.partCount ?? "—";
+    document.getElementById("rbxm-union-count").textContent = data.unionCount ?? "—";
+    document.getElementById("rbxm-total-count").textContent = data.totalParts ?? "—";
+
+    const reasonsEl = document.getElementById("rbxm-reasons");
+    if(data.reasons && data.reasons.length){
+      reasonsEl.innerHTML = data.reasons.map(r => "⚠ "+r).join("<br>");
+    } else {
+      reasonsEl.textContent = "";
+    }
+
+    document.getElementById("rbxm-result").style.display = "block";
+    statusEl.textContent = data.supported
+      ? "✓ File berhasil dianalisis."
+      : "⚠ File tidak memenuhi kriteria konversi.";
+  }catch(e){
+    statusEl.textContent = "✗ " + e.message;
+  }
+}
+
+async function buildFromUpload(){
+  // Reuse buildModelGLB - sudah set window.currentModelData di handleRBXMUpload
+  const btn = document.getElementById("rbxm-build-btn");
+  const statusEl = document.getElementById("rbxm-upload-status");
+  // Redirect status output ke rbxm-upload-status
+  const origStatus = document.getElementById("model-status");
+  const origBuildBtn = document.getElementById("model-build-btn");
+  // Sementara swap element reference supaya buildModelGLB update status yang benar
+  btn.disabled = true;
+  await window.buildModelGLB(statusEl, btn);
 }
 
 async function downloadRBXM(){
