@@ -362,10 +362,15 @@ def parse_rbxmx(data):
         el = props.find("Color3uint8[@name='Color3uint8']")
         if el is None:
             return [163, 162, 165]
-        r = int(el.find('R').text or 163)
-        g = int(el.find('G').text or 162)
-        b = int(el.find('B').text or 165)
-        return [r, g, b]
+        try:
+            # Format: single integer e.g. "10724005" = 0xA39965 = R:163 G:153 B:101
+            val = int(el.text.strip())
+            r = (val >> 16) & 0xFF
+            g = (val >> 8) & 0xFF
+            b = val & 0xFF
+            return [r, g, b]
+        except:
+            return [163, 162, 165]
 
     def parse_cframe(props, cf_name='CFrame'):
         cf = props.find(f"CoordinateFrame[@name='{cf_name}']")
