@@ -1973,9 +1973,10 @@ def model_mesh_union():
         if meshdata_raw is None:
             return jsonify({"error": "MeshData property tidak ditemukan"}), 422
 
-        # Decode string (1 entry)
-        mesh_strings = decode_string_array(meshdata_raw, 1)
-        mesh_bytes = mesh_strings[0].encode("latin-1") if mesh_strings else b""
+        # Baca raw bytes langsung (MeshData adalah binary, bukan UTF-8 string)
+        pos = 0
+        sl = struct.unpack("<I", meshdata_raw[pos:pos+4])[0]; pos += 4
+        mesh_bytes = meshdata_raw[pos:pos+sl]
 
         if not mesh_bytes:
             return jsonify({"error": "MeshData kosong"}), 422
