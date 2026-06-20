@@ -1649,24 +1649,39 @@ def model_convert():
         if len(data) > 50 * 1024 * 1024:  # 50MB max
             return jsonify({"error": "File terlalu besar (maks 50MB)"}), 400
 
-        try:
-            chunks, num_types, num_instances = parse_chunks(data)
-        except RBXMParseError as e:
-            return jsonify({"error": str(e), "supported": False}), 422
+        # Auto-detect format: XML (.rbxmx) vs Binary (.rbxm)
+        is_xml = data[:20].lstrip().startswith(b'<roblox') and data[:8] != b'<roblox!'
 
-        type_map = parse_inst_chunks(chunks)
+        pre_parts = None
+        if is_xml:
+            try:
+                parsed = parse_rbxmx(data)
+                meshpart_count = parsed["meshPartCount"]
+                part_count = parsed["partCount"]
+                union_count = parsed["unionCount"]
+                total_parts = meshpart_count + part_count
+                pre_parts = parsed["parts"]
+            except Exception as e:
+                return jsonify({"error": f"Gagal parse XML: {str(e)}", "supported": False}), 422
+        else:
+            try:
+                chunks, num_types, num_instances = parse_chunks(data)
+            except RBXMParseError as e:
+                return jsonify({"error": str(e), "supported": False}), 422
 
-        meshpart_tid = part_tid = union_tid = None
-        for tid, info in type_map.items():
-            cn = info["class_name"]
-            if cn == "MeshPart": meshpart_tid = tid
-            elif cn == "Part": part_tid = tid
-            elif cn == "UnionOperation": union_tid = tid
+            type_map = parse_inst_chunks(chunks)
 
-        meshpart_count = type_map.get(meshpart_tid, {}).get("count", 0) if meshpart_tid is not None else 0
-        part_count = type_map.get(part_tid, {}).get("count", 0) if part_tid is not None else 0
-        union_count = type_map.get(union_tid, {}).get("count", 0) if union_tid is not None else 0
-        total_parts = meshpart_count + part_count
+            meshpart_tid = part_tid = union_tid = None
+            for tid, info in type_map.items():
+                cn = info["class_name"]
+                if cn == "MeshPart": meshpart_tid = tid
+                elif cn == "Part": part_tid = tid
+                elif cn == "UnionOperation": union_tid = tid
+
+            meshpart_count = type_map.get(meshpart_tid, {}).get("count", 0) if meshpart_tid is not None else 0
+            part_count = type_map.get(part_tid, {}).get("count", 0) if part_tid is not None else 0
+            union_count = type_map.get(union_tid, {}).get("count", 0) if union_tid is not None else 0
+            total_parts = meshpart_count + part_count
 
         reasons = []
         if union_count > 0:
