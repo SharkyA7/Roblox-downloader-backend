@@ -304,10 +304,13 @@ window.buildModelGLB = async function(customStatusEl, customBtn){
   try{
     const meshParts = data.parts.filter(p => p.className === "MeshPart" && p.meshId);
     const boxParts  = data.parts.filter(p => p.className === "Part");
+    const unionParts = data.parts.filter(p => p.className === "UnionOperation" && p.unionAssetId);
     const uniqueMeshIds = [...new Set(meshParts.map(p => p.meshId))];
+    const uniqueUnionIds = [...new Set(unionParts.map(p => p.unionAssetId))];
 
     const objLoader = new OBJLoader();
     const meshGeomCache = {};
+    const unionGeomCache = {};
     let failedMeshes = 0;
 
     // Concurrency-limited fetch pool - hindari overload Vercel/Roblox dgn ratusan request sekaligus
