@@ -1611,15 +1611,14 @@ def model_info():
             total_parts = meshpart_count + part_count
             pre_parts = None
 
+        total_parts_all = meshpart_count + part_count + union_count
         reasons = []
-        if union_count > 0:
-            reasons.append(f"Asset menggunakan UnionOperation/CSG ({union_count}x) - belum didukung")
-        if total_parts > 100:
-            reasons.append(f"Asset terlalu kompleks ({total_parts} parts, maksimum 100 untuk MVP)")
-        if total_parts == 0:
-            reasons.append("Tidak ada MeshPart/Part - asset ini mungkin bukan 3D Model (cek tipe asset)")
+        if total_parts_all > 100:
+            reasons.append(f"Asset terlalu kompleks ({total_parts_all} parts, maksimum 100)")
+        if total_parts_all == 0:
+            reasons.append("Tidak ada MeshPart/Part/Union - asset ini mungkin bukan 3D Model (cek tipe asset)")
 
-        supported = (union_count == 0) and (0 < total_parts <= 100)
+        supported = (0 < total_parts_all <= 100)
 
         parts = []
 
@@ -1668,6 +1667,48 @@ def model_info():
         decode_class(meshpart_tid, meshpart_count, "MeshPart")
         decode_class(part_tid, part_count, "Part")
 
+        # Decode UnionOperation - ambil AssetId dan size/CFrame/color/name
+        if union_tid is not None and union_count > 0:
+            _, size_raw = find_prop_chunk(chunks, union_tid, "size")
+            sizes = decode_vector3_array(size_raw, union_count) if size_raw else [(1.0,1.0,1.0)]*union_count
+
+            _, cf_raw = find_prop_chunk(chunks, union_tid, "CFrame")
+            if cf_raw:
+                u_positions, u_rotations = decode_cframe_full(cf_raw, union_count)
+            else:
+                u_positions = [(0.0,0.0,0.0)]*union_count
+                u_rotations = [{"status":"identity-fallback","value":[1,0,0,0,1,0,0,0,1],"rawRotationId":None}]*union_count
+
+            _, name_raw = find_prop_chunk(chunks, union_tid, "Name")
+            u_names = decode_string_array(name_raw, union_count) if name_raw else [f"Union{i}" for i in range(union_count)]
+
+            _, color_raw = find_prop_chunk(chunks, union_tid, "Color3uint8")
+            u_colors = decode_color3uint8_array(color_raw, union_count) if color_raw else [(163,162,165)]*union_count
+
+            _, assetid_raw = find_prop_chunk(chunks, union_tid, "AssetId")
+            if assetid_raw:
+                u_asset_ids = decode_string_array(assetid_raw, union_count)
+            else:
+                u_asset_ids = [None]*union_count
+
+            for i in range(union_count):
+                # Extract numeric ID from URL like "https://www.roblox.com//asset/?id=123456"
+                aid_raw = u_asset_ids[i] if u_asset_ids[i] else ""
+                aid_match = re.search(r"(\d{4,})", aid_raw)
+                asset_id_num = aid_match.group(1) if aid_match else None
+
+                parts.append({
+                    "name": u_names[i],
+                    "className": "UnionOperation",
+                    "meshId": None,
+                    "textureId": None,
+                    "unionAssetId": asset_id_num,
+                    "position": {"status": "decoded", "value": [round(v,4) for v in u_positions[i]]},
+                    "size": {"status": "decoded", "value": [round(v,4) for v in sizes[i]]},
+                    "rotation": u_rotations[i],
+                    "color": {"status": "best-effort", "value": list(u_colors[i])}
+                })
+
         return jsonify({
             "assetId": file_id,
             "supported": supported,
@@ -1675,7 +1716,7 @@ def model_info():
             "meshPartCount": meshpart_count,
             "partCount": part_count,
             "unionCount": union_count,
-            "totalParts": total_parts,
+            "totalParts": total_parts_all,
             "parts": parts
         })
 
@@ -1854,15 +1895,14 @@ def model_convert():
             union_count = type_map.get(union_tid, {}).get("count", 0) if union_tid is not None else 0
             total_parts = meshpart_count + part_count
 
+        total_parts_all = meshpart_count + part_count + union_count
         reasons = []
-        if union_count > 0:
-            reasons.append(f"Asset menggunakan UnionOperation/CSG ({union_count}x) - belum didukung")
-        if total_parts > 100:
-            reasons.append(f"Asset terlalu kompleks ({total_parts} parts, maksimum 100)")
-        if total_parts == 0:
-            reasons.append("Tidak ada MeshPart/Part ditemukan")
+        if total_parts_all > 100:
+            reasons.append(f"Asset terlalu kompleks ({total_parts_all} parts, maksimum 100)")
+        if total_parts_all == 0:
+            reasons.append("Tidak ada MeshPart/Part/Union ditemukan")
 
-        supported = (union_count == 0) and (0 < total_parts <= 100)
+        supported = (0 < total_parts_all <= 100)
 
         parts = []
 
@@ -1915,6 +1955,45 @@ def model_convert():
             decode_class(meshpart_tid, meshpart_count, "MeshPart")
             decode_class(part_tid, part_count, "Part")
 
+            if union_tid is not None and union_count > 0:
+                _, size_raw = find_prop_chunk(chunks, union_tid, "size")
+                sizes = decode_vector3_array(size_raw, union_count) if size_raw else [(1.0,1.0,1.0)]*union_count
+
+                _, cf_raw = find_prop_chunk(chunks, union_tid, "CFrame")
+                if cf_raw:
+                    u_positions, u_rotations = decode_cframe_full(cf_raw, union_count)
+                else:
+                    u_positions = [(0.0,0.0,0.0)]*union_count
+                    u_rotations = [{"status":"identity-fallback","value":[1,0,0,0,1,0,0,0,1],"rawRotationId":None}]*union_count
+
+                _, name_raw = find_prop_chunk(chunks, union_tid, "Name")
+                u_names = decode_string_array(name_raw, union_count) if name_raw else [f"Union{i}" for i in range(union_count)]
+
+                _, color_raw = find_prop_chunk(chunks, union_tid, "Color3uint8")
+                u_colors = decode_color3uint8_array(color_raw, union_count) if color_raw else [(163,162,165)]*union_count
+
+                _, assetid_raw = find_prop_chunk(chunks, union_tid, "AssetId")
+                if assetid_raw:
+                    u_asset_ids = decode_string_array(assetid_raw, union_count)
+                else:
+                    u_asset_ids = [None]*union_count
+
+                for i in range(union_count):
+                    aid_raw = u_asset_ids[i] if u_asset_ids[i] else ""
+                    aid_match = re.search(r"(\d{4,})", aid_raw)
+                    asset_id_num = aid_match.group(1) if aid_match else None
+                    parts.append({
+                        "name": u_names[i],
+                        "className": "UnionOperation",
+                        "meshId": None,
+                        "textureId": None,
+                        "unionAssetId": asset_id_num,
+                        "position": {"status": "decoded", "value": [round(v,4) for v in u_positions[i]]},
+                        "size": {"status": "decoded", "value": [round(v,4) for v in sizes[i]]},
+                        "rotation": u_rotations[i],
+                        "color": {"status": "best-effort", "value": list(u_colors[i])}
+                    })
+
         return jsonify({
             "assetId": f.filename.replace('.rbxm','').replace('.rbxmx',''),
             "filename": f.filename,
@@ -1924,7 +2003,7 @@ def model_convert():
             "meshPartCount": meshpart_count,
             "partCount": part_count,
             "unionCount": union_count,
-            "totalParts": total_parts,
+            "totalParts": total_parts_all,
             "parts": parts
         })
 
