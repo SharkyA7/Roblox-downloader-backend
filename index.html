@@ -342,6 +342,22 @@ window.buildModelGLB = async function(customStatusEl, customBtn){
       if(geometry) meshGeomCache[meshId] = geometry;
     });
 
+    // Fetch Union/CSG geometry
+    if(uniqueUnionIds.length > 0){
+      statusEl.textContent = `⏳ Mengunduh ${uniqueUnionIds.length} Union/CSG geometry...`;
+      await fetchPool(uniqueUnionIds, 4, async (unionAssetId) => {
+        const res = await fetch(`${BASE}/api/v2/model/mesh-union?assetId=${encodeURIComponent(unionAssetId)}`);
+        const json = await res.json();
+        if(!json.obj) throw new Error(json.error || "union fetch failed");
+        const group = objLoader.parse(json.obj);
+        let geometry = null;
+        group.traverse(child => {
+          if(child.isMesh && !geometry) geometry = child.geometry;
+        });
+        if(geometry) unionGeomCache[unionAssetId] = geometry;
+      });
+    }
+
     // Fetch texture images untuk MeshPart yang punya TextureID
     const uniqueTextureIds = [...new Set(meshParts.map(p => p.textureId).filter(Boolean))];
     const textureCache = {};
@@ -417,8 +433,8 @@ window.buildModelGLB = async function(customStatusEl, customBtn){
       });
       a.click();
       URL.revokeObjectURL(a.href);
-      const failNote = failedMeshes > 0 ? ` (${failedMeshes} mesh gagal di-skip)` : "";
-      statusEl.textContent = `✓ GLB berhasil! ${meshParts.length} mesh + ${boxParts.length} box part${failNote}. Rotasi sudah didukung.`;
+      const failNote = failedMeshes > 0 ? ` (${failedMeshes} gagal di-skip)` : "";
+      statusEl.textContent = `✓ GLB berhasil! ${meshParts.length} mesh + ${boxParts.length} box + ${unionParts.length} union${failNote}. Rotasi sudah didukung.`;
       btn.disabled = false;
     }, (err) => {
       statusEl.textContent = "✗ Export GLB gagal: " + err.message;
