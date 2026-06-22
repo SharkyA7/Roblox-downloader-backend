@@ -28,6 +28,10 @@
       "dest": "backend/main.py"
     },
     {
+      "src": "/auth/(.*)",
+      "dest": "backend/main.py"
+    },
+    {
       "src": "/",
       "dest": "index.html"
     },
