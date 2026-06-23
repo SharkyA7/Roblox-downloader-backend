@@ -1,6 +1,5 @@
 # IMPORTANT ANNOUNCEMENT
-Still in development (CLOSED)
-READY TO USE AND BEING REVIEW BY ROBLOX
+BETA IS CLOSED | READY TO USE
 # Roblox 3D Downloader
 
 FastAPI Backend + HTML Frontend to download Roblox avatar characters and catalog items in OBJ/GLTF format.
