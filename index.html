@@ -1273,12 +1273,17 @@ function closeModal(){
       localStorage.setItem('modal_seen','1');
     });
 }
+window.onerror = function(msg,src,line,col,err){
+  alert('JS ERROR: '+msg+' line:'+line);
+};
 document.addEventListener('DOMContentLoaded',()=>{
   const modal = document.getElementById('security-modal');
-  if(localStorage.getItem('modal_seen')){
-    modal.style.display='none';
-  } else {
+  modal.style.display='flex';
+  modal.style.opacity='1';
+  try {
     initModalAnimation();
+  } catch(e) {
+    alert('initModalAnimation error: '+e.message);
   }
   setLang(currentLang);
 });
