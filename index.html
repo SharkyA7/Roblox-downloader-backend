@@ -49,12 +49,12 @@ select option{background:var(--s2)}
 .btn:disabled{background:var(--gray2);cursor:not-allowed;box-shadow:none}
 .btn-green{background:#009955}.btn-green:hover{background:#00bb66;box-shadow:0 0 14px rgba(0,255,153,.3)}
 .btn-amber{background:linear-gradient(135deg,#b45309,#f59e0b);color:#09090f}.btn-amber:hover{filter:brightness(1.1)}
-.status-box{min-height:20px;display:flex;align-items:flex-start;gap:8px;font-size:11px;margin-top:12px}
-.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.status-box{min-height:20px;display:flex;align-items:flex-start;gap:8px;font-size:11px;margin-top:12px;padding-top:12px;border-top:1px solid var(--s3);}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px;}
 .idle{color:var(--gray)}.idle .dot{background:var(--gray)}
-.loading{color:var(--amber)}.loading .dot{background:var(--amber);animation:blink .7s infinite}
-.ok{color:var(--green)}.ok .dot{background:var(--green)}
-.err{color:#ff7777}.err .dot{background:var(--red)}
+.loading{color:var(--amber)}.loading .dot{background:var(--amber);animation:blink .7s infinite;box-shadow:0 0 6px var(--amber);}
+.ok{color:var(--green)}.ok .dot{background:var(--green);box-shadow:0 0 6px var(--green);}
+.err{color:#ff7777}.err .dot{background:var(--red);box-shadow:0 0 6px var(--red);}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .prog{height:3px;background:var(--s2);border-radius:2px;overflow:hidden;margin-top:10px}
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0%;transition:width .4s}
@@ -72,7 +72,7 @@ select option{background:var(--s2)}
 .dl-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
 @media(max-width:460px){.dl-grid{grid-template-columns:1fr}}
 .dl-card{background:var(--s2);border:1px solid var(--gray2);border-radius:4px;padding:14px;transition:border-color .2s}
-.dl-card.ready{border-color:var(--green);box-shadow:0 0 10px rgba(0,255,153,.1)}
+.dl-card.ready{border-color:var(--accent);box-shadow:0 0 12px rgba(0,212,255,.15)}
 .dl-title{font-family:'Press Start 2P',monospace;font-size:10px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
 .dl-desc{font-size:9px;color:var(--gray);line-height:1.6;margin-bottom:10px}
 .badge{display:inline-block;padding:1px 6px;border-radius:2px;font-size:8px;letter-spacing:1px}
@@ -83,7 +83,7 @@ select option{background:var(--s2)}
   padding:12px 14px;font-size:10px;color:#ccaa55;line-height:1.8;margin-top:14px}
 .api-note strong{color:var(--amber)}
 code{background:var(--s2);border:1px solid var(--gray2);border-radius:3px;padding:2px 6px;font-size:10px;color:var(--green)}
-footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top:1px solid var(--s2);letter-spacing:1px}
+footer{text-align:center;padding:20px;font-size:9px;color:var(--gray);border-top:1px solid var(--s3);letter-spacing:1px;background:var(--s1);}
 
 
 @keyframes scan{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
@@ -1778,6 +1778,56 @@ function initModalAnimation_unused(){
     );
   });
 }
+</script>
+
+<script>
+function initMainAnimations(){
+  const { animate } = Motion;
+  const header = document.querySelector('header');
+  if(header) animate(header,{opacity:[0,1],y:[-12,0]},{duration:0.5,easing:[0.22,1,0.36,1]});
+  animatePanelCards(document.querySelector('.panel.active'));
+  initButtonSprings();
+}
+function animatePanelCards(panel){
+  if(!panel) return;
+  const { animate } = Motion;
+  Array.from(panel.querySelectorAll('.card')).forEach((card,i)=>{
+    card.style.opacity='0';card.style.transform='translateY(16px)';
+    setTimeout(()=>animate(card,{opacity:[0,1],y:[16,0]},{duration:0.4,easing:[0.22,1,0.36,1]}),i*80);
+  });
+}
+function initButtonSprings(){
+  const { animate } = Motion;
+  document.querySelectorAll('.btn').forEach(btn=>{
+    btn.addEventListener('mouseenter',()=>animate(btn,{scale:1.04},{duration:0.2,easing:[0.34,1.56,0.64,1]}));
+    btn.addEventListener('mouseleave',()=>animate(btn,{scale:1},{duration:0.25,easing:[0.22,1,0.36,1]}));
+    btn.addEventListener('mousedown',()=>animate(btn,{scale:0.96},{duration:0.08}));
+    btn.addEventListener('mouseup',()=>animate(btn,{scale:1.04},{duration:0.15,easing:[0.34,1.56,0.64,1]}));
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  window.switchTab = function(name){
+    const { animate } = Motion;
+    const panels = document.querySelectorAll('.panel');
+    const next = document.getElementById('panel-'+name);
+    panels.forEach(p=>{
+      if(p.classList.contains('active')&&p!==next){
+        animate(p,{opacity:[1,0]},{duration:0.15}).then(()=>{p.classList.remove('active');p.style.display='none';});
+      }
+    });
+    setTimeout(()=>{
+      panels.forEach(p=>p.classList.remove('active'));
+      if(next){next.style.display='block';next.style.opacity='0';next.classList.add('active');
+        animate(next,{opacity:[0,1],y:[8,0]},{duration:0.3,easing:[0.22,1,0.36,1]});
+        animatePanelCards(next);
+      }
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      const at=Array.from(document.querySelectorAll('.tab')).find(t=>t.getAttribute('onclick')&&t.getAttribute('onclick').includes("'"+name+"'"));
+      if(at) at.classList.add('active');
+    },150);
+  };
+  if(typeof Motion!=='undefined') initMainAnimations();
+});
 </script>
 </body>
 </html>
