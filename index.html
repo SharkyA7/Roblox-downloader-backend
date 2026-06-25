@@ -1221,6 +1221,49 @@ function setLang(lang){
     b.classList.toggle('active',(i===0&&lang==='id')||(i===1&&lang==='en'));
   });
 }
+function initModalAnimation(){
+  const { animate, stagger, spring } = Motion;
+  const box = document.querySelector('.modal-box');
+  const cards = document.querySelectorAll('.sec-card');
+  const proof = document.querySelector('.proof-section');
+  const footer = document.querySelector('.modal-footer');
+
+  box.style.opacity = '0';
+  box.style.transform = 'scale(0.92) translateY(16px)';
+  cards.forEach(c => { c.style.opacity='0'; c.style.transform='translateY(20px)'; });
+  if(proof) proof.style.opacity = '0';
+  if(footer) footer.style.opacity = '0';
+
+  animate(box,
+    { opacity:[0,1], scale:[0.92,1], y:[16,0] },
+    { duration:0.45, easing: spring({ stiffness:280, damping:22 }) }
+  );
+  animate(cards,
+    { opacity:[0,1], y:[20,0] },
+    { delay: stagger(0.08, { start:0.28 }), duration:0.35, easing:[0.22,1,0.36,1] }
+  );
+  const delayed = [proof, footer].filter(Boolean);
+  if(delayed.length){
+    animate(delayed,
+      { opacity:[0,1], y:[12,0] },
+      { delay: stagger(0.1, { start:0.62 }), duration:0.32, easing:[0.22,1,0.36,1] }
+    );
+  }
+  document.querySelectorAll('.modal-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', () =>
+      animate(btn, { scale:1.03 }, { easing: spring({ stiffness:400, damping:18 }), duration:0.25 })
+    );
+    btn.addEventListener('mouseleave', () =>
+      animate(btn, { scale:1 }, { easing: spring({ stiffness:400, damping:22 }), duration:0.3 })
+    );
+    btn.addEventListener('mousedown', () =>
+      animate(btn, { scale:0.96 }, { easing: spring({ stiffness:600, damping:20 }), duration:0.1 })
+    );
+    btn.addEventListener('mouseup', () =>
+      animate(btn, { scale:1.03 }, { easing: spring({ stiffness:400, damping:18 }), duration:0.2 })
+    );
+  });
+}
 function closeModal(){
   const { animate } = Motion;
   const overlay = document.getElementById('security-modal');
@@ -1687,7 +1730,7 @@ async function bakeForPrisma(){
 </script>
 
 <script>
-function initModalAnimation(){
+function initModalAnimation_unused(){
   const { animate, stagger, spring } = Motion;
   const box = document.querySelector('.modal-box');
   const cards = document.querySelectorAll('.sec-card');
