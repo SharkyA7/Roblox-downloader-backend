@@ -12,43 +12,43 @@
 <meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#05050d;--s1:#0c0c1a;--s2:#12122a;--s3:#1a1a36;--red:#e8000b;--rb:#ff1a24;--rg:rgba(232,0,11,.18);--rd:rgba(232,0,11,.08);--green:#00ff99;--amber:#ffaa00;--white:#eeeef8;--gray:#5a5a7a;--gray2:#3a3a5a}
+:root{--bg:#09090f;--s1:#0d0d1a;--s2:#111124;--s3:#161632;--accent:#00d4ff;--accent2:#0ea5e9;--ag:rgba(0,212,255,.1);--ab:rgba(0,212,255,.18);--red:#e8000b;--green:#00e896;--amber:#f59e0b;--white:#f0f0ff;--gray:#64748b;--gray2:#1e2235}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--white);font-family:'Share Tech Mono',monospace;min-height:100vh;
-  background-image:linear-gradient(rgba(232,0,11,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(232,0,11,.04) 1px,transparent 1px);
-  background-size:40px 40px}
+  background-image:linear-gradient(rgba(0,212,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.02) 1px,transparent 1px);
+  background-size:60px 60px}
 header{text-align:center;padding:40px 20px 24px}
-h1{font-family:'Press Start 2P',monospace;font-size:clamp(12px,2.5vw,20px);color:var(--rb);
-   text-shadow:0 0 20px rgba(232,0,11,.6);letter-spacing:2px;line-height:1.5}
+h1{font-family:'Press Start 2P',monospace;font-size:clamp(12px,2.5vw,20px);background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+   text-shadow:none;filter:drop-shadow(0 0 16px rgba(0,212,255,.4));letter-spacing:2px;line-height:1.5}
 .sub{font-size:10px;color:var(--gray);letter-spacing:3px;text-transform:uppercase;margin-top:8px}
-.scan{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);margin-top:20px;opacity:.5}
+.scan{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);margin-top:20px;opacity:.4}
 main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
-.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:2px solid var(--gray2)}
+.tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid var(--gray2)}
 .tab{flex:1;text-align:center;padding:12px;font-family:'Press Start 2P',monospace;font-size:9px;
-.tab-dropdown{position:relative;flex:1}.dropdown-menu{position:absolute;top:100%;right:0;background:var(--s1);border:1px solid var(--gray2);border-radius:4px;z-index:9999;min-width:140px}.dropdown-item{padding:10px 14px;font-family:"Press Start 2P",monospace;font-size:8px;color:var(--gray);cursor:pointer;white-space:nowrap}.dropdown-item:hover{background:var(--s2);color:var(--red)}
+.tab-dropdown{position:relative;flex:1}.dropdown-menu{position:absolute;top:100%;right:0;background:var(--s1);border:1px solid var(--gray2);border-radius:4px;z-index:9999;min-width:140px}.dropdown-item{padding:10px 14px;font-family:"Press Start 2P",monospace;font-size:8px;color:var(--gray);cursor:pointer;white-space:nowrap}.dropdown-item:hover{background:var(--s2);color:var(--accent)}
      color:var(--gray);cursor:pointer;transition:all .2s;letter-spacing:1px;border-bottom:2px solid transparent;margin-bottom:-2px}
 .tab:hover{color:var(--white)}
-.tab.active{color:var(--red);border-bottom-color:var(--red)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .panel{display:none}.panel.active{display:block}
-.card{background:var(--s1);border:1px solid var(--red);
-  box-shadow:0 0 0 1px var(--rd),0 0 24px var(--rg);border-radius:4px;padding:22px;margin-bottom:18px;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--rb),transparent)}
-.label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--red);letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.card{background:rgba(13,13,26,.85);border:1px solid var(--ab);backdrop-filter:blur(8px);
+  box-shadow:0 0 0 1px rgba(0,212,255,.06),0 4px 32px rgba(0,0,0,.5);border-radius:8px;padding:22px;margin-bottom:16px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent)}
+.label{font-family:'Press Start 2P',monospace;font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 .label::before{content:'▶';font-size:7px}
 .row{display:flex;gap:10px;flex-wrap:wrap}
 input[type=text],input[type=number],select{
-  flex:1;min-width:180px;background:var(--s2);border:1px solid var(--gray2);border-radius:3px;
+  flex:1;min-width:180px;background:var(--s2);border:1px solid var(--gray2);border-radius:6px;
   color:var(--white);font-family:'Share Tech Mono',monospace;font-size:14px;padding:11px 14px;outline:none;transition:border-color .2s}
-input:focus,select:focus{border-color:var(--red);box-shadow:0 0 0 2px var(--rd)}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.15)}
 select option{background:var(--s2)}
 .hint{font-size:9px;color:var(--gray);margin-top:4px;letter-spacing:.5px}
-.btn{background:var(--red);color:#fff;border:none;border-radius:3px;font-family:'Press Start 2P',monospace;
-  font-size:9px;padding:12px 20px;cursor:pointer;letter-spacing:1px;transition:background .15s,box-shadow .15s;white-space:nowrap}
-.btn:hover{background:var(--rb);box-shadow:0 0 14px rgba(232,0,11,.5)}
+.btn{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#09090f;border:none;border-radius:6px;font-family:'Press Start 2P',monospace;
+  font-size:9px;padding:12px 20px;cursor:pointer;letter-spacing:1px;transition:all .2s;white-space:nowrap;font-weight:700}
+.btn:hover{filter:brightness(1.1);box-shadow:0 0 20px rgba(0,212,255,.35);transform:translateY(-1px)}
 .btn:active{transform:scale(.97)}
 .btn:disabled{background:var(--gray2);cursor:not-allowed;box-shadow:none}
 .btn-green{background:#009955}.btn-green:hover{background:#00bb66;box-shadow:0 0 14px rgba(0,255,153,.3)}
-.btn-amber{background:#b07800}.btn-amber:hover{background:#cc8c00}
+.btn-amber{background:linear-gradient(135deg,#b45309,#f59e0b);color:#09090f}.btn-amber:hover{filter:brightness(1.1)}
 .status-box{min-height:20px;display:flex;align-items:flex-start;gap:8px;font-size:11px;margin-top:12px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
 .idle{color:var(--gray)}.idle .dot{background:var(--gray)}
@@ -57,7 +57,7 @@ select option{background:var(--s2)}
 .err{color:#ff7777}.err .dot{background:var(--red)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 .prog{height:3px;background:var(--s2);border-radius:2px;overflow:hidden;margin-top:10px}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--rb));width:0%;transition:width .4s}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0%;transition:width .4s}
 .result-grid{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:start}
 @media(max-width:540px){.result-grid{grid-template-columns:1fr}}
 .av-img{background:var(--s2);border:1px solid var(--gray2);border-radius:4px;aspect-ratio:1;
@@ -91,37 +91,43 @@ footer{text-align:center;padding:18px;font-size:9px;color:var(--gray);border-top
 
 
 /* ── REDESIGNED SECURITY POPUP ─────────────────────────── */
-.modal-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(0,0,0,.92);backdrop-filter:blur(8px)}
-.modal-box{background:#05050d;border:1px solid #00ffcc;border-radius:6px;max-width:440px;width:100%;position:relative;overflow:hidden;box-shadow:0 0 40px rgba(0,255,204,.2)}
-.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00ffcc,#e8000b,#00ffcc,transparent)}
-.modal-header{padding:16px 16px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.modal-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.85);backdrop-filter:blur(12px)}
+.modal-box{background:rgba(13,13,26,.97);border:1px solid rgba(0,212,255,.2);border-radius:16px;max-width:460px;width:100%;position:relative;overflow:hidden;box-shadow:0 0 60px rgba(0,212,255,.1),0 24px 48px rgba(0,0,0,.6)}
+.modal-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),var(--accent2),transparent)}
+.modal-header{padding:20px 20px 0;display:flex;justify-content:space-between;align-items:flex-start}
 .modal-title-wrap{flex:1}
-.modal-badge{display:inline-block;background:rgba(232,0,11,.15);border:1px solid #e8000b;color:#e8000b;font-family:'Press Start 2P',monospace;font-size:7px;padding:3px 8px;border-radius:2px;letter-spacing:1px;margin-bottom:6px}
-.modal-title{font-family:'Press Start 2P',monospace;font-size:11px;color:#00ffcc;letter-spacing:2px;line-height:1.5;text-shadow:0 0 10px rgba(0,255,204,.5)}
+.modal-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:10px;padding:4px 10px;border-radius:20px;letter-spacing:1px;margin-bottom:8px}
+.modal-title{font-family:'Press Start 2P',monospace;font-size:13px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:2px;line-height:1.6;filter:drop-shadow(0 0 12px rgba(0,212,255,.3))}
 .lang-btns{display:flex;gap:5px;flex-shrink:0;margin-left:8px}
-.lang-btn{background:transparent;border:1px solid #2a2a4a;color:#5a5a7a;font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 8px;border-radius:3px;cursor:pointer;transition:all .2s}
-.lang-btn.active{border-color:#00ffcc;color:#00ffcc;background:rgba(0,255,204,.08)}
-.false-alert{margin:14px 16px 0;background:rgba(232,0,11,.08);border:1px solid rgba(232,0,11,.4);border-left:3px solid #e8000b;border-radius:4px;padding:12px}
-.false-alert-title{font-family:'Press Start 2P',monospace;font-size:8px;color:#e8000b;margin-bottom:6px}
-.false-alert-body{font-size:9px;color:#cc8888;line-height:1.8}
-.false-alert-body strong{color:#ffaaaa}
-.modal-body{padding:14px 16px}
+.lang-btn{background:transparent;border:1px solid var(--gray2);color:var(--gray);font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;cursor:pointer;transition:all .2s}
+.lang-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,212,255,.08)}
+.modal-desc{margin:12px 20px 0;font-size:11px;color:var(--gray);line-height:1.8}
+.modal-desc strong{color:var(--white)}
+.modal-body{padding:16px 20px}
 .sec-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.sec-card{background:#0a0a1a;border:1px solid #1a1a3a;border-radius:4px;padding:10px;transition:border-color .2s}
-.sec-card:hover{border-color:#00ffcc}
-.sec-card-icon{font-size:16px;margin-bottom:4px}
-.sec-card-title{font-family:'Press Start 2P',monospace;font-size:7px;color:#00ffcc;margin-bottom:4px;letter-spacing:1px}
-.sec-card-desc{font-size:8px;color:#6a6a8a;line-height:1.6}
-.proof-section{background:#0a0a1a;border:1px solid #1a1a3a;border-radius:4px;padding:12px;margin-bottom:14px}
-.proof-title{font-family:'Press Start 2P',monospace;font-size:8px;color:#ffaa00;margin-bottom:8px}
-.proof-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:9px;color:#888}
-.proof-item a{color:#00ffcc;text-decoration:none;font-family:'Share Tech Mono',monospace}
-.proof-dot{width:6px;height:6px;border-radius:50%;background:#00ffcc;flex-shrink:0}
-.modal-footer{padding:0 16px 16px;display:flex;flex-direction:column;gap:8px}
-.modal-btn{width:100%;padding:12px;border:none;border-radius:3px;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:1px;transition:all .2s}
-.modal-btn-primary{background:linear-gradient(135deg,#00aa88,#007755);color:#fff}
-.modal-btn-secondary{background:transparent;color:#5a5a7a;border:1px solid #2a2a4a;font-size:7px}
-.modal-scan{height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,204,.4),transparent);margin:0 16px 12px}
+.sec-card{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:12px;transition:all .2s}
+.sec-card:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.08);transform:translateY(-1px)}
+.sec-card-icon{font-size:18px;margin-bottom:6px}
+.sec-card-title{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--accent);margin-bottom:4px;letter-spacing:1px}
+.sec-card-desc{font-size:8px;color:var(--gray);line-height:1.6}
+.proof-section{background:rgba(0,232,150,.04);border:1px solid rgba(0,232,150,.15);border-radius:10px;padding:12px;margin-bottom:14px}
+.proof-title{font-family:'Press Start 2P',monospace;font-size:7px;color:var(--green);margin-bottom:10px;letter-spacing:1px}
+.proof-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:9px;color:var(--gray)}
+.proof-item a{color:var(--accent);text-decoration:none}
+.proof-dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+.login-hint{background:rgba(14,165,233,.06);border:1px solid rgba(14,165,233,.2);border-radius:10px;padding:12px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px}
+.login-hint-icon{font-size:20px;flex-shrink:0}
+.login-hint-text{font-size:9px;color:var(--gray);line-height:1.8}
+.login-hint-text strong{color:var(--accent2)}
+.modal-footer{padding:0 20px 20px;display:flex;flex-direction:column;gap:8px}
+.modal-btn{width:100%;padding:13px;border:none;border-radius:10px;cursor:pointer;font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:1px;transition:all .2s}
+.modal-btn-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#09090f;font-weight:700}
+.modal-btn-primary:hover{filter:brightness(1.1);box-shadow:0 0 20px rgba(0,212,255,.3)}
+.modal-btn-login{background:rgba(14,165,233,.1);color:var(--accent2);border:1px solid rgba(14,165,233,.3);font-size:8px}
+.modal-btn-login:hover{background:rgba(14,165,233,.2)}
+.modal-btn-secondary{background:transparent;color:var(--gray);border:1px solid var(--gray2);font-size:7px}
+.modal-btn-secondary:hover{color:var(--white);border-color:var(--gray)}
+.modal-scan{height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);margin:0 20px 12px}
 
 
 /* ── PATCH NOTES ─────────────────────────────────────────── */
@@ -470,47 +476,59 @@ window.buildModelGLB = async function(customStatusEl, customBtn){
 
 <!-- SECURITY MODAL -->
 <div class="modal-overlay" id="security-modal">
-  <div class="modal-box">
+  <div class="modal-box" id="modal-box-inner">
     <div class="modal-header">
       <div class="modal-title-wrap">
-        <div class="modal-badge" data-i18n="badge_verified">✓ TERVERIFIKASI AMAN</div>
-        <div class="modal-title" data-i18n="modal_title">ROBLOX 3D<br>DOWNLOADER</div>
+        <div class="modal-badge">✦ VERIFIED SAFE TOOL</div>
+        <div class="modal-title">ROBLOX 3D<br>DOWNLOADER</div>
       </div>
       <div class="lang-btns">
         <button class="lang-btn active" onclick="setLang('id')">🇮🇩 ID</button>
         <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
       </div>
     </div>
-    <div class="false-alert">
-      <div class="false-alert-title">ℹ <span data-i18n="false_title">TOOL UNTUK 3D CREATORS</span></div>
-      <div class="false-alert-body" data-i18n="false_body">Dibuat untuk <strong>Nomad Sculpt</strong>, <strong>Prisma 3D</strong>, dan <strong>Blender</strong> users. Export avatar Roblox sebagai OBJ/GLTF dengan UV texture. <strong>100% open source</strong> &amp; dapat diverifikasi di GitHub.</div>
-    </div>
+    <p class="modal-desc" data-i18n="modal_desc">Open-source tool untuk <strong>3D creators</strong>. Download avatar &amp; aset Roblox sebagai OBJ/GLB untuk Nomad Sculpt, Prisma 3D, dan Blender.</p>
     <div class="modal-body">
       <div class="sec-grid">
-        <div class="sec-card"><div class="sec-card-icon">🔒</div><div class="sec-card-title" data-i18n="c1_title">NO PASSWORD</div><div class="sec-card-desc" data-i18n="c1_desc">Tidak pernah meminta password Roblox</div></div>
-        <div class="sec-card"><div class="sec-card-icon">📵</div><div class="sec-card-title" data-i18n="c2_title">NO TRACKING</div><div class="sec-card-desc" data-i18n="c2_desc">Tidak ada analytics atau tracker</div></div>
-        <div class="sec-card"><div class="sec-card-icon">🖥️</div><div class="sec-card-title" data-i18n="c3_title">LOCAL/CLOUD</div><div class="sec-card-desc" data-i18n="c3_desc">Server bisa lokal atau Railway cloud</div></div>
-        <div class="sec-card"><div class="sec-card-icon">⚡</div><div class="sec-card-title" data-i18n="c4_title">API ONLY</div><div class="sec-card-desc" data-i18n="c4_desc">Hanya akses API publik Roblox</div></div>
+        <div class="sec-card"><div class="sec-card-icon">🔒</div><div class="sec-card-title">NO PASSWORD</div><div class="sec-card-desc" data-i18n="c1_desc">Tidak pernah meminta password Roblox</div></div>
+        <div class="sec-card"><div class="sec-card-icon">🚫</div><div class="sec-card-title">NO TRACKING</div><div class="sec-card-desc" data-i18n="c2_desc">Tidak ada analytics atau tracker</div></div>
+        <div class="sec-card"><div class="sec-card-icon">☁️</div><div class="sec-card-title">VERCEL HOSTED</div><div class="sec-card-desc" data-i18n="c3_desc">Backend aman di Vercel serverless</div></div>
+        <div class="sec-card"><div class="sec-card-icon">⚡</div><div class="sec-card-title">API ONLY</div><div class="sec-card-desc" data-i18n="c4_desc">Hanya akses API publik Roblox</div></div>
       </div>
       <div class="proof-section">
-        <div class="proof-title">🔍 <span data-i18n="proof_title">BUKTI TRANSPARANSI</span></div>
-        <div class="proof-item"><div class="proof-dot"></div><span data-i18n="proof_1">Source code:</span>&nbsp;<a href="https://github.com/SharkyA7/Roblox-downloader-backend" target="_blank">GitHub @SharkyA7</a></div>
-        <div class="proof-item"><div class="proof-dot"></div><span data-i18n="proof_2">✓ Terverifikasi Google Search Console</span></div>
-        <div class="proof-item"><div class="proof-dot"></div><span data-i18n="proof_3">✓ Dilindungi Cloudflare SSL/TLS</span></div>
-        <div class="proof-item"><div class="proof-dot"></div><span data-i18n="proof_4">✓ Tidak ada form login / input password</span></div>
+        <div class="proof-title">✦ TRANSPARENCY</div>
+        <div class="proof-item"><div class="proof-dot"></div>Source code: <a href="https://github.com/SharkyA7/Roblox-downloader-backend" target="_blank">GitHub @SharkyA7</a></div>
+        <div class="proof-item"><div class="proof-dot"></div>Dilindungi Cloudflare SSL/TLS</div>
+        <div class="proof-item"><div class="proof-dot"></div>Tidak menyimpan data pribadi</div>
+        <div class="proof-item"><div class="proof-dot"></div>Privacy Policy &amp; Terms tersedia di site</div>
+      </div>
+      <div class="login-hint">
+        <div class="login-hint-icon">💡</div>
+        <div class="login-hint-text" data-i18n="login_hint">
+          <strong>Login dengan Roblox opsional</strong> — tanpa login, tool tetap berfungsi penuh. Login hanya memberikan pengalaman lebih baik: rate limit pribadi &amp; akses aset private kamu.
+        </div>
       </div>
     </div>
     <div class="modal-scan"></div>
     <div class="modal-footer">
-      <button class="modal-btn modal-btn-primary" onclick="document.getElementById('security-modal').style.display='none';localStorage.setItem('modal_seen','1')" data-i18n="btn_understand">✓ SAYA MENGERTI, LANJUTKAN</button>
-      <button class="modal-btn modal-btn-secondary" onclick="window.open('https://github.com/SharkyA7/Roblox-downloader-backend','_blank')" data-i18n="btn_github">↗ LIHAT SOURCE CODE DI GITHUB</button>
+      <button class="modal-btn modal-btn-primary" onclick="closeModal()" data-i18n="btn_understand">✓ MENGERTI, LANJUTKAN</button>
+      <button class="modal-btn modal-btn-login" onclick="closeModal();window.location.href='/auth/login'" data-i18n="btn_login">🔑 LOGIN DENGAN ROBLOX (OPSIONAL)</button>
+      <button class="modal-btn modal-btn-secondary" onclick="window.open('https://github.com/SharkyA7/Roblox-downloader-backend','_blank')" data-i18n="btn_github">↗ LIHAT SOURCE CODE</button>
     </div>
   </div>
 </div>
 <header>
+  <div id="oauth-bar" style="display:none;justify-content:flex-end;max-width:860px;margin:0 auto;padding:8px 16px 0;gap:10px;align-items:center">
+    <span id="oauth-username" style="font-size:10px;color:var(--accent)"></span>
+    <button onclick="oauthLogout()" style="background:transparent;border:1px solid var(--gray2);color:var(--gray);font-family:'Share Tech Mono',monospace;font-size:9px;padding:4px 10px;border-radius:20px;cursor:pointer">Logout</button>
+  </div>
   <h1>ROBLOX 3D DOWNLOADER</h1>
-  <p class="sub">Avatar · Katalog · OBJ · GLTF · Backend API</p>
-  <div class="scan"></div>
+  <p class="sub">Avatar · Katalog · 3D Model · GLB · Open Source</p>
+  <div style="display:flex;justify-content:center;gap:10px;margin-top:12px;flex-wrap:wrap">
+    <a href="/auth/login" id="btn-login-header" style="display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 16px;border-radius:20px;text-decoration:none;transition:all .2s" onmouseover="this.style.background='rgba(0,212,255,.15)'" onmouseout="this.style.background='rgba(0,212,255,.08)'">🔑 Login with Roblox</a>
+    <a href="https://github.com/SharkyA7/Roblox-downloader-backend" target="_blank" style="display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--gray2);color:var(--gray);font-family:'Share Tech Mono',monospace;font-size:10px;padding:7px 16px;border-radius:20px;text-decoration:none;transition:all .2s" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--gray)'">↗ GitHub</a>
+  </div>
+  <div class="scan" style="margin-top:16px"></div>
 </header>
 
 <main>
