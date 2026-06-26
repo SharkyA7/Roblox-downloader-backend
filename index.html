@@ -579,7 +579,7 @@ window.buildModelGLB = async function(customStatusEl, customBtn){
     <div class="tab" onclick="switchTab('audio')">🎵 AUDIO</div>
     <div class="tab" onclick="switchTab('model3d')">📦 3D MODEL</div>
     <div class="tab-dropdown">
-      <button class="tab" onclick="toggleDropdown(event)">⚙️ MORE ▼</button>
+      <div class="tab" onclick="toggleDropdown(event)">⚙️ MORE ▼</div>
       <div class="dropdown-menu" id="dropdown-menu" style="display:none">
         <div class="dropdown-item" onclick="switchTab('texture');document.getElementById('dropdown-menu').style.display='none'">🎨 TEXTURE</div>
         <div class="dropdown-item" onclick="switchTab('api');document.getElementById('dropdown-menu').style.display='none'">📡 API DOCS</div>
