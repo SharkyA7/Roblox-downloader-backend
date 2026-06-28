@@ -107,6 +107,11 @@ Open browser: http://localhost:8000
 
 ---
 
+## ⚠️IMPORTANT TO READ⚠️
+- **DO NOT** misused my repo for stealing people **ROBLOX ACCOUNT!**
+- **DO NOT** chnage the python file, if you know what your doing with it
+- **I AM NOT RESPONSIBLE** for those who download explicit characters, use them at your own risk.
+
 ## Deploy to Production (Render.com / Railway)
 
 1. Push code to GitHub (make sure `.env` is in `.gitignore`)
@@ -116,21 +121,3 @@ Open browser: http://localhost:8000
 3. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
 
 ---
-
-## IMAGE EXAMPLE HOW IT WORKS
-
-<div align="center">
-  <img src="1.png" width="500">
-  <img src="2.png" width="500">
-  <img src="3.png" width="500">
-  <img src="4.png" width="500">
-  <img src="5.png" width="500">
-  <img src="6.png" width="500">
-  <img src="7.png" width="500">
-  <img src="8.png" width="500">
-  <img src="9.png" width="500">
-  <img src="10.png" width="500">
-  <img src="11.png" width="500">
-  <img src="12.png" width="500">
-  <img src="13.png" width="500">
-</div>
